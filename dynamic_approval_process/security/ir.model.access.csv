@@ -1,0 +1,9 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+dynamic_approval_process.access_approval_config_user,access_approval_config_user,dynamic_approval_process.model_approval_config,base.group_user,1,0,0,0
+dynamic_approval_process.access_approval_line_user,access_approval_line_user,dynamic_approval_process.model_approval_line,base.group_user,1,0,0,0
+
+dynamic_approval_process.access_approval_config_manager,access_approval_config,dynamic_approval_process.model_approval_config,base.group_erp_manager,1,1,1,1
+dynamic_approval_process.access_approval_line_manager,access_approval_line,dynamic_approval_process.model_approval_line,base.group_erp_manager,1,1,1,1
+
+access_approval_history,access_approval_history,dynamic_approval_process.model_approval_history,base.group_user,1,1,1,1
+access_send_back_wizard,access_send_back_wizard,dynamic_approval_process.model_send_back_wizard,base.group_user,1,1,1,1

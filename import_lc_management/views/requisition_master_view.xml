@@ -1,0 +1,51 @@
+<odoo>
+
+    <record id="view_purchase_requisition_form_inherit" model="ir.ui.view">
+        <field name="name">purchase.requisition.form.inherit</field>
+        <field name="model">custom.purchase.requisition</field>
+        <field name="inherit_id" ref="brac_procurement.view_purchase_requisition_form"/>
+        <field name="arch" type="xml">
+
+            <header position="inside">
+<!--                <button name="action_new_lc" groups="brac_lc_process.group_lc_user" type="object" string="New LC"-->
+<!--                        class="oe_highlight" data-hotkey="l" invisible="state !='done'"/>-->
+            </header>
+
+            <xpath expr="//field[@name='bull_station_id']" position="after">
+                <field name="warehouse_id" readonly="1" force_save="1"/>
+                <field name="budget_code" readonly="state =='done'" required="0"/>
+<!--                <field name="date_required" readonly="state == 'done'"/>-->
+            </xpath>
+
+
+            <xpath expr="//group[1]" position="after">
+
+                <div name="button_box" class="oe_button_box">
+                    <button name="action_view_lc"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-th-list"
+                            groups="import_lc_management.group_lc_user"
+                            t-att-class="{'o_hidden': (requisition_type != 'purchase' or state != 'approved' or (lc_ready_count == 0 and lc_done_count == 0))}">
+                        <div class="o_field_widget o_stat_info mr4">
+                            <span class="o_stat_text">Ready:</span>
+                            <span class="o_stat_text">Done:</span>
+                        </div>
+                        <div class="o_field_widget o_stat_info">
+                            <span class="o_stat_value">
+                                <field name="lc_ready_count"/>
+                            </span>
+                            <span class="o_stat_value">
+                                <field name="lc_done_count"/>
+                            </span>
+                        </div>
+                    </button>
+                </div>
+
+
+
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

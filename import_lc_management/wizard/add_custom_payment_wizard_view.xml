@@ -1,0 +1,33 @@
+<!-- lc_vendor_payment_wizard_views.xml -->
+<odoo>
+    <!-- Wizard Form View -->
+    <record id="view_lc_vendor_payment_wizard_form" model="ir.ui.view">
+        <field name="name">lc.vendor.payment.wizard.form</field>
+        <field name="model">lc.vendor.payment.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Create Vendor Payment">
+                <group>
+                    <field name="lc_id" readonly="1"/>
+                    <field name="partner_id"/>
+                    <field name="journal_id"/>
+                    <field name="amount"/>
+                    <field name="currency_id" readonly="1"/>
+                    <field name="company_id"/>
+                </group>
+                <footer>
+                    <button string="Create Payment" type="object" name="action_create_payment" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Optional: Add an action (not mandatory since it's called from button) -->
+    <record id="action_lc_vendor_payment_wizard" model="ir.actions.act_window">
+        <field name="name">Create Vendor Payment</field>
+        <field name="res_model">lc.vendor.payment.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_lc_vendor_payment_wizard_form"/>
+        <field name="target">new</field>
+    </record>
+</odoo>
