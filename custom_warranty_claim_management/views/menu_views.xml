@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <menuitem id="custom_warranty_root" name="Warranty Management" sequence="0"/>
+
+    <menuitem
+            id="custom_warranty_overview"
+            name="Overview"
+            parent="custom_warranty_root"
+            action="warranty_overview_action"
+            sequence="0"
+    />
+
+    <menuitem
+            id="custom_warranty_operations"
+            name="Operations"
+            parent="custom_warranty_root"
+            sequence="5"
+    />
+
+    <menuitem
+            id="custom_warranty_warranty_claims"
+            name="Claims"
+            parent="custom_warranty_operations"
+            action="action_warranty_claim"
+            sequence="0"
+    />
+</odoo>
