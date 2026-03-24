@@ -2,6 +2,10 @@ from odoo import models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
 from datetime import date
 
+class WarrantyApproval(models.Model):
+    _inherit = 'approval.config'
+    approval_type = fields.Selection(selection_add=[('warranty', 'Warranty Claim')], ondelete={'warranty': 'set default'})
+
 class WarrantyClaim(models.Model):
     _name = "warranty.claim"
     _description = "Warranty Claim"
@@ -42,6 +46,95 @@ class WarrantyClaim(models.Model):
     # Todo: Add fields related to "Dealer Info"
 
     # Todo: Add Approval
+    company_id = fields.Many2one(
+        'res.company',
+        string='Company',
+        required=True,
+        index=True,
+        default=lambda self: self.env.company
+    )
+
+    requesting_department_id = fields.Many2one('hr.department', default=lambda self: self.env.user.employee_id.department_id)
+
+    approval_config_id = fields.Many2one("approval.config", domain="[('approval_type', '=', 'warranty'), ('company_id', '=', company_id)]", string="Approval Config")
+
+    stage_id = fields.Many2one(
+        "approval.line",
+        string="Approval Stage",
+        copy=False,
+        domain="[('config_id', '=', approval_config_id)]",
+    )
+
+    @api.onchange('approval_config_id')
+    def _onchange_approval_config_id(self):
+        self.stage_id = False
+        if self.approval_config_id and self.approval_config_id.approval_line_ids:
+            self.stage_id = self.approval_config_id.approval_line_ids[0]
+
+    # approval_history_ids = fields.One2many(
+    #     'approval.history',
+    #     'res_id',
+    #     string="Approval History",
+    #     domain=lambda self: [('res_model', '=', self._name), ('company_id', '=', self.company_id.id)],
+    # )
+
+    def open_send_back_wizard(self):
+        """Open wizard to capture send-back note"""
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Send Back Note'),
+            'res_model': 'send.back.wizard',
+            'target': 'new',
+            'view_mode': 'form',
+            'view_type': 'form',
+            'context': {
+                'default_note': '',
+                'active_id': self.id,
+                'active_model': self._name
+            },
+        }
+
+    def approve_process(self):
+        """Approve Indent with stage flow and log history"""
+        self.ensure_one()
+        # Validation: Must have lines
+        if not self.line_ids:
+            raise ValidationError(_("No Products Added to the Indent. Please Add Products to Proceed."))
+
+        # Validation: Must have approval config
+        if not self.approval_config_id:
+            raise ValidationError(_("No Approval Config found. Please configure approval stages first."))
+
+        current_stage_sequence = self.stage_id.sequence
+        user_dept = self.env.user.employee_id.department_id
+
+        if user_dept != self.requesting_department_id:
+            raise UserError(_(
+                "You are not allowed to approve this stage. "
+                "Only the %s department can approve."
+            ) % user_dept.name)
+
+        # Find next stage
+        next_stage = self.stage_id.get_next_stage(self.approval_config_id.id, current_stage_sequence,
+                                                  self.company_id.id)
+
+        # Check user permission
+        if next_stage and self.env.user not in self.stage_id.user_ids:
+            raise UserError(_("You are not allowed to approve this stage."))
+
+        # Log to generic approval history
+        # self._log_history(
+        #     action_type='authorized',
+        #     stage_id=self.stage_id.id,
+        #     to_stage_id=next_stage.id if next_stage else False,
+        #     note=_("Approved by %s") % self.env.user.name
+        # )
+
+        if next_stage:
+            self.write({'stage_id': next_stage.id, 'state': 'draft'})  # Keep state draft until final stage
+        else:
+            self.write({'stage_id': self.stage_id.id, 'state': 'approved'})  # Final approval
 
     def assign_to_inspector(self):
         for record in self:

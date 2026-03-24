@@ -13,6 +13,7 @@
         "sale",
         "account",
         "web",
+        "dynamic_approval_process"
     ],
     "data": [
         "security/warranty_security.xml",

@@ -43,8 +43,17 @@
         <field name="arch" type="xml">
             <form string="Warranty Claim">
                 <header>
-                    <button name="assign_to_inspector" type="object" string="Assign Inspector" groups="custom_warranty_claim_management.warranty_claim_user" invisible="state not in ['draft']"/>
-                    <button name="inspection_done" type="object" string="Inspection Done" groups="custom_warranty_claim_management.warranty_claim_inspector" invisible="state not in ['assigned']"/>
+                    <button name="assign_to_inspector" type="object" string="Assign Inspector"
+                            groups="custom_warranty_claim_management.warranty_claim_user"
+                            invisible="state not in ['draft']"/>
+                    <button name="inspection_done" type="object" string="Inspection Done"
+                            groups="custom_warranty_claim_management.warranty_claim_inspector"
+                            invisible="state not in ['assigned']"/>
+                    <button class="oe_highlight" name="approve_process" string="Approve" type="object"/>
+                    <button name="open_send_back_wizard" type="object" string="Send Back" class="btn-secondary"/>
+                    <field name="stage_id" widget="statusbar"
+                           options="{'clickable': '1'}"
+                           domain="[('config_id', '=', approval_config_id)]"/>
                     <field name="state" widget="statusbar"/>
                 </header>
 
@@ -58,6 +67,7 @@
                     <!--User-->
                     <group groups="custom_warranty_claim_management.warranty_claim_user">
                         <field name="sales_order_id" readonly="state not in ['draft']"/>
+                        <field name="approval_config_id" string="Approval Config" readonly="state not in ['draft']"/>
                         <field name="customer_id" required="1" readonly="state not in ['draft']"/>
                         <field name="salesperson_id" readonly="state not in ['draft']"/>
                         <field name="mobile" required="1" readonly="state not in ['draft']"/>
@@ -70,6 +80,7 @@
                     <!--Other Users-->
                     <group groups="custom_warranty_claim_management.warranty_claim_inspector">
                         <field name="sales_order_id" readonly="1"/>
+                        <field name="approval_config_id" string="Approval Config" readonly="1"/>
                         <field name="customer_id" readonly="1"/>
                         <field name="salesperson_id" readonly="1"/>
                         <field name="mobile" readonly="1"/>
