@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="indent_analysis_template">
+            <t t-call="web.html_container">
+                <t t-call="web.external_layout">
+                    <div class="page" style="font-size: 10px; font-family: Arial, sans-serif;">
+                        <div class="text-center" style="font-weight: bold; font-size: 16px; margin-bottom: 5px; text-decoration: underline;">
+                            <span t-if="report_type == 'abc'">ABC INDENT ANALYSIS REPORT (BY AMOUNT)</span>
+                            <span t-elif="report_type == 'xyz'">XYZ INDENT ANALYSIS REPORT (BY CONSUMPTION QTY)</span>
+                            <span t-else="">EFG INDENT ANALYSIS REPORT (BY STOCK QTY)</span>
+                        </div>
+                        <div class="text-center" style="font-weight: bold; font-size: 14px; margin-bottom: 20px;">
+                            From <span t-esc="from_date" t-options='{"widget": "date", "format": "dd/MM/yyyy"}'/>
+                            To <span t-esc="to_date" t-options='{"widget": "date", "format": "dd/MM/yyyy"}'/>
+                    </div>
+
+                    <table class="table table-sm table-bordered" style="width: 100%; border-collapse: collapse;">
+                        <thead style="background-color: #f2f2f2;">
+                            <tr>
+                                <th>Store</th>
+                                <th>Product Category</th>
+                                <th>Sub Category</th>
+                                <th>Code</th>
+                                <th>Name(Item)</th>
+                                <th>Specification</th>
+                                <th>Part Number</th>
+                                <th>UOM</th>
+                                <th>Safety Stock</th>
+                                <th>Min. Order Qty (MOQ)</th>
+                                <th>Reorder Level</th>
+                                <th>Lead Time (Days)</th>
+                                <th>Total Qty</th>
+                                <th>Total Amount</th>
+                                <th t-if="report_type == 'abc'">ABC</th>
+                                <th t-if="report_type == 'xyz'">XYZ</th>
+                                <th t-if="report_type == 'efg'">EFG</th>
+                                <th>LC / Local</th>
+                                <th>Remarks</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="lines" t-as="line">
+                                <tr>
+                                    <td>
+                                        <t t-esc="line['store']"/>
+                                    </td>
+                                    <td>
+                                        <t t-esc="line['category']"/>
+                                    </td>
+                                    <td>
+                                        <t t-esc="line['sub_category']"/>
+                                    </td>
+                                    <td>
+                                        <t t-esc="line['code']"/>
+                                    </td>
+                                    <td>
+                                        <t t-esc="line['name']"/>
+                                    </td>
+                                    <td>
+                                        <t t-esc="line['specification']"/>
+                                    </td>
+                                    <td>
+                                        <t t-esc="line['part_number']"/>
+                                    </td>
+                                    <td>
+                                        <t t-esc="line['uom']"/>
+                                    </td>
+                                    <td class="text-right">
+                                        <t t-esc="'{0:,.2f}'.format(line['safety_stock'])"/>
+                                    </td>
+                                    <td class="text-right">
+                                        <t t-esc="'{0:,.2f}'.format(line['moq'])"/>
+                                    </td>
+                                    <td class="text-right">
+                                        <t t-esc="'{0:,.2f}'.format(line['reorder_level'])"/>
+                                    </td>
+                                    <td class="text-center">
+                                        <t t-esc="line['lead_time']"/>
+                                    </td>
+                                    <td class="text-right">
+                                        <t t-esc="'{0:,.2f}'.format(line['total_qty'])"/>
+                                    </td>
+                                    <td class="text-right">
+                                        <t t-esc="'{0:,.2f}'.format(line['total_amount'])"/>
+                                    </td>
+                                    <td t-if="report_type == 'abc'" class="text-center" style="font-weight: bold;">
+                                        <t t-esc="line['abc']"/>
+                                    </td>
+                                    <td t-if="report_type == 'xyz'" class="text-center" style="font-weight: bold;">
+                                        <t t-esc="line['xyz']"/>
+                                    </td>
+                                    <td t-if="report_type == 'efg'" class="text-center" style="font-weight: bold;">
+                                        <t t-esc="line['efg']"/>
+                                    </td>
+                                    <td class="text-center">
+                                        <t t-esc="line['lc_local']"/>
+                                    </td>
+                                    <td>
+                                        <t t-esc="line['remarks']"/>
+                                    </td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+                </div>
+            </t>
+        </t>
+    </template>
+</data>
+</odoo>

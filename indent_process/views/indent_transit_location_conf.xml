@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+<!--    <record id="res_config_settings_view_indent_transit" model="ir.ui.view">-->
+<!--        <field name="name">Res Config Settings - Indent Transit Location</field>-->
+<!--        <field name="model">res.config.settings</field>-->
+<!--        <field name="inherit_id" ref="base.res_config_settings_view_form"/>-->
+<!--        <field name="arch" type="xml">-->
+
+<!--            <xpath expr="//form" position="inside">-->
+<!--                <app string="Indent Settings" name="indent_settings" logo="/indent_process/static/description/icon.png">-->
+<!--                    <block title="Indent Transit Location Settings" name="indent_transit_location_settings">-->
+<!--                        <group>-->
+<!--                            <field name="is_indent_transit_active" options="{'no_create': True}"/>-->
+<!--                            <field name="indent_transit_location_id" options="{'no_create': True}"/>-->
+<!--                        </group>-->
+<!--                    </block>-->
+<!--                </app>-->
+<!--            </xpath>-->
+
+<!--        </field>-->
+<!--    </record>-->
+
+
+    <!-- Main Menu for Indent Management -->
+<!--    <menuitem id="indent_management_main_menu"-->
+<!--              name="Indent Management"-->
+<!--              parent="menu_indent_root"-->
+<!--              sequence="10"/>-->
+
+    <!-- Submenu for Transit Configuration -->
+<!--    <menuitem id="indent_transit_management_menu"-->
+<!--              name="Transit Configuration"-->
+<!--              parent="indent_management_main_menu"-->
+<!--              sequence="10"/>-->
+
+    <!-- Action for Indent Transit Settings -->
+<!--    <record id="action_indent_transit_settings" model="ir.actions.act_window">-->
+<!--        <field name="name">Indent Transit Settings</field>-->
+<!--        <field name="res_model">res.config.settings</field>-->
+<!--        <field name="view_mode">form</field>-->
+<!--        <field name="target">inline</field>-->
+<!--        <field name="context">{'module': 'indent_process'}</field>-->
+<!--    </record>-->
+
+    <!-- Menu Item to Open Indent Transit Settings -->
+<!--    <menuitem id="menu_indent_transit_settings"-->
+<!--              name="Indent Transit Settings"-->
+<!--              parent="indent_transit_management_menu"-->
+<!--              action="action_indent_transit_settings"-->
+<!--              sequence="10"/>-->
+</odoo>

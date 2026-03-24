@@ -8,7 +8,7 @@
     'sequence': '1',
     'author': 'Ashif Raihan',
     'maintainer': 'MISL',
-    'license': 'LGPL-3',
+    'license': 'OPL-1',
 
     'depends': [
         'base', 'mail', 'account', 'account_accountant', 'stock', 'uom', 'hr', 'purchase_stock', 'hr', 'project',

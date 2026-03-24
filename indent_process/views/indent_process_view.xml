@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Indent Process (List, Form, Search, Action, Menu) -->
+    <record id="view_indent_process_list" model="ir.ui.view">
+        <field name="name">indent.process.tree</field>
+        <field name="model">indent.process</field>
+        <field name="arch" type="xml">
+            <list string="Indents">
+                <header>
+                    <button class="btn-success" name="create_transfer" string="Issue" type="object"/>
+                    <button name="action_generate_purchase_requisition" string="Generate Purchase Requisition" type="object" class="btn-primary"/>
+                </header>
+                <field name="name"/>
+                <field name="indent_type"/>
+                <field name="company_id"/>
+                <field name="indent_date"/>
+                <field name="requesting_user_id"/>
+                <field name="requesting_department_id"/>
+                <field name="state"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_indent_process_search" model="ir.ui.view">
+        <field name="name">indent.process.search</field>
+        <field name="model">indent.process</field>
+        <field name="arch" type="xml">
+            <search string="Indent Search">
+                <field name="name"/>
+                <field name="company_id"/>
+                <field name="requesting_user_id"/>
+                <field name="state"/>
+
+                <filter name="approved_indent_state" string="Approved Indent" domain="[('state', '=', 'approved')]"/>
+                <filter string="Date" name="indent_date" date="indent_date"/>
+
+            </search>
+        </field>
+    </record>
+
+    <record id="view_indent_process_form" model="ir.ui.view">
+        <field name="name">indent.process.form</field>
+        <field name="model">indent.process</field>
+        <field name="arch" type="xml">
+            <form string="Indent">
+                <header>
+                    <button class="oe_highlight" invisible="state not in ('draft')" name="action_confirm" string="Confirm" type="object"/>
+                    <button class="oe_highlight" invisible="state in ('draft', 'approved', 'cancel')" name="approve_indent" string="Approve" type="object"/>
+                    <button class="btn-warning" name="send_back_indent" string="Send Back" type="object" invisible="state in ('draft', 'approved', 'cancel')" confirm="Are you sure you want to send back this indent?"/>
+                    <button class="btn-success" name="create_transfer" invisible="state in ('draft', 'approval_pending', 'cancel') or issue_status in ('received')" string="Issue" type="object"/>
+                    <button name="action_generate_purchase_requisition" type="object" string="Generate Purchase Requisition" class="btn-primary" invisible="state not in ('approved')"/>
+                    <button class="btn-danger" name="action_cancel" string="Cancel" type="object" invisible="state in ('approved', 'cancel')" confirm="Are you sure you want to cancel this indent?"/>
+                    <field name="state" statusbar_visible="draft,approval_pending,approved" widget="statusbar"/>
+                    <field name="stage_id" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+
+                        <button class="oe_stat_button" icon="fa-truck" name="action_view_picking_transfer" style="height: 60px;" type="object" invisible="not picking_ids">
+                            <div class="o_field_widget o_stat_info px-2">
+                                <span class="o_stat_value">
+                                    <field name="picking_count"/>
+                                </span>
+                                <span class="o_stat_text">
+                                    Transfer
+                                </span>
+                            </div>
+                        </button>
+                        <button class="oe_stat_button" icon="fa-cart-plus" name="action_view_purchase_requisition" style="height: 60px;" type="object" invisible="not purchase_requisition_ids">
+                            <div class="o_field_widget o_stat_info px-2">
+                                <span class="o_stat_value">
+                                    <field name="purchase_requisition_count"/>
+                                </span>
+                                <span class="o_stat_text">
+                                    Purchase Requisition
+                                </span>
+                            </div>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field default="New" name="name" placeholder="Indent No." readonly="1" force_save="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="requesting_user_id" options="{'no_create': True}" readonly="1" force_save="1"/>
+                            <field name="company_id" options="{'no_create': True}" required="1" readonly="1" force_save="1"/>
+                            <field name="indent_date" required="1" readonly="state in ('approved', 'cancel')" force_save="1"/>
+<!--                            <field name="from_unit" options="{'no_create_edit': True, 'no_create':True}" readonly="state in ('approved', 'cancel')" force_save="1" required="1"/>-->
+<!--                            <field name="store_type" readonly="1"/>-->
+                            <field name="issue_status"/>
+                            <!--                            <field name="transit_location_id" readonly="1" force_save="1"/>-->
+                            <!--                            <field name="is_indent_issue" readonly="1" force_save="1"/>-->
+                            <field name="approval_config_id" invisible="1" force_save="1"/>
+                        </group>
+
+                        <group>
+                            <field name="purchase_requisition_ids" widget="many2many_tags" invisible="1" force_save="1"/>
+                            <field name="picking_ids" invisible="1"/>
+                            <field name="indent_ref" readonly="state in ('approved', 'cancel')" force_save="1"/>
+                            <field name="indent_type" readonly="state in ('approved', 'cancel')" required="1"/>
+                            <field name="requesting_department_id" options="{'no_create': True}" required="1" readonly="state in ('approved', 'cancel')" force_save="1"/>
+                            <field name="warehouse_id" options="{'no_create': True}" readonly="state in ('approved', 'cancel')" force_save="1" required="1"/>
+                            <field name="location_id" options="{'no_create': True}" readonly="state in ('approved', 'cancel') or indent_type == 'consume'" force_save="1" required="1" domain="[('usage', 'in', ['internal', 'inventory']), ('company_id', '=', company_id)]" />
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Indent Lines">
+                            <field name="indent_line_ids" readonly="state in ('approved', 'cancel')">
+                                <list editable="bottom">
+                                    <field name="serial_no" readonly="1" force_save="1"/>
+                                    <field name="product_cat_id" column_invisible="0" force_save="1" readonly="parent.state in ('approved', 'cancel')" options="{'no_create': True}"/>
+                                    <field name="product_id" options="{'no_create': True}" readonly="parent.state in ('approved', 'cancel')" force_save="1" required="1" domain="[('categ_id', '=', product_cat_id)]"/>
+                                    <field name="product_specification" readonly="1" force_save="1"/>
+                                    <field name="quantity" required="1" readonly="parent.state in ('approved', 'cancel')" force_save="1"/>
+                                    <field name="product_uom" required="1" readonly="parent.state in ('approved', 'cancel')" force_save="1"/>
+                                    <field name="unit_price" readonly="1" force_save="1" optional="hide"/>
+                                    <field name="on_hand_qty" readonly="1" force_save="1"/>
+                                    <field name="transferred_qty" readonly="1" force_save="1"/>
+                                    <field name="returned_qty" readonly="1" force_save="1"/>
+                                    <!--                                    <field name="received_qty" readonly="1" force_save="1"/>-->
+                                    <field name="remaining_qty" readonly="1" force_save="1"/>
+                                    <field name="issue_status" readonly="1" force_save="1" optional="hide"/>
+                                    <field name="remarks" readonly="parent.state in ('approved', 'cancel')" force_save="1"/>
+                                    <button class="oe_highlight" name="action_open_quants" string="Check Availability" type="object"/>
+                                </list>
+                            </field>
+                        </page>
+                        <!-- New Page for Approval History -->
+                        <page string="Approval History">
+                            <field name="approval_history_ids" readonly="1" force_save="1">
+                                <list>
+                                    <field name="date"/>
+                                    <field name="stage_id"/>
+                                    <field name="to_stage_id"/>
+                                    <field name="user_id"/>
+                                    <field name="action_type"/>
+                                    <field name="note"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Signatures" invisible="1">
+                            <group>
+                                <field name="indented_by_id" options="{'no_create': True}" readonly="1" force_save="1"/>
+                                <field name="authorised_by_id" options="{'no_create': True}" readonly="1" force_save="1"/>
+                            </group>
+                            <group>
+                                <field name="issue_date" readonly="1" force_save="1"/>
+                                <field name="issued_by_id" options="{'no_create': True}" readonly="1" force_save="1"/>
+                                <field name="received_by_id" options="{'no_create': True}" readonly="state in ('cancel')"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Actions and Menus -->
+    <record id="action_indent_process" model="ir.actions.act_window">
+        <field name="name">Indents</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">indent.process</field>
+        <field name="view_mode">list,form,graph</field>
+    </record>
+
+    <record id="view_indent_line_list" model="ir.ui.view">
+        <field name="name">indent.line.list</field>
+        <field name="model">indent.line</field>
+        <field name="arch" type="xml">
+            <list string="Indents" create="false" delete="false" edit="false" editable="bottom">
+                <header>
+                    <button class="btn-success" name="create_transfer" string="Issue" type="object"/>
+                    <button name="action_generate_purchase_requisition_item" type="object" string="Generate Purchase Requisition" class="btn-primary"/>
+                </header>
+                <field name="serial_no" width="150"/>
+                <field name="indent_id" widget="many2one_clickable" width="150"/>
+                <field name="indent_date" optional="hide"/>
+                <field name="company_id" optional="hide"/>
+                <field name="product_id" width="150"/>
+                <field name="product_cat_id"/>
+                <field name="department_id"/>
+                <field name="product_specification" optional="hide"/>
+                <field name="quantity"/>
+                <field name="product_uom"/>
+                <field name="unit_price" optional="hide"/>
+                <field name="on_hand_qty"/>
+                <field name="transferred_qty"/>
+                <field name="remaining_qty"/>
+                <field name="indent_state"/>
+                <field name="remarks"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_indent_items_search" model="ir.ui.view">
+        <field name="name">indent.line.search</field>
+        <field name="model">indent.line</field>
+        <field name="arch" type="xml">
+            <search string="Indent Item Search">
+                <field name="serial_no"/>
+                <field name="company_id"/>
+                <field name="indent_id"/>
+                <field name="product_id"/>
+                <field name="indent_state"/>
+
+                <filter name="approved_indent_state" string="Approved Indent" domain="[('indent_state', '=', 'approved')]"/>
+                <filter string="Date" name="indent_date" date="indent_date"/>
+
+            </search>
+        </field>
+    </record>
+
+    <!-- Actions and Menus -->
+    <record id="action_indent_items" model="ir.actions.act_window">
+        <field name="name">Indent Items</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">indent.line</field>
+        <field name="view_mode">list,search</field>
+    </record>
+
+    <menuitem id="menu_indent_root" name="Indent" sequence="8" parent="stock.menu_stock_root"/>
+    <menuitem action="action_indent_process" id="menu_indent_process" name="Indents" parent="menu_indent_root"/>
+    <menuitem id="menu_indent_list" action="action_indent_items" name="Indent Items" parent="menu_indent_root"/>
+</odoo>

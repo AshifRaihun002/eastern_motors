@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="indent_material_paperformat" model="report.paperformat">
+        <field name="name">Indent Material Paper Format</field>
+        <field name="format">A4</field>
+        <field name="orientation">Landscape</field>
+        <field name="margin_top">40</field>
+        <field name="margin_bottom">15</field>
+        <field name="margin_left">7</field>
+        <field name="margin_right">7</field>
+        <field name="header_line" eval="False"/>
+        <field name="header_spacing">30</field>
+        <field name="dpi">90</field>
+        <field name="disable_shrinking" eval="False"/>
+    </record>
+
+    <record id="indent_material_action" model="ir.actions.report">
+        <field name="name">Indent Material</field>
+        <field name="model">indent.process</field>
+        <field name="report_type">qweb-html</field>
+        <field name="report_name">indent_process.indent_material_template</field>
+        <field name="report_file">indent_process.indent_material_template</field>
+        <field name="print_report_name">'Indent Material - %s' % (object.name)</field>
+        <field name="binding_model_id" ref="model_indent_process"/>
+        <field name="paperformat_id" ref="indent_material_paperformat"/>
+        <field name="binding_type">report</field>
+    </record>
+</odoo>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="indent_report_paperformat" model="report.paperformat">
+            <field name="name">Indent Report Paper Format</field>
+            <field name="format">A4</field>
+            <field name="orientation">Landscape</field>
+            <field name="margin_top">40</field>
+            <field name="margin_bottom">15</field>
+            <field name="margin_left">7</field>
+            <field name="margin_right">7</field>
+            <field name="header_line" eval="False"/>
+            <field name="header_spacing">35</field>
+            <field name="dpi">90</field>
+        </record>
+
+        <record id="action_report_indent" model="ir.actions.report">
+            <field name="name">Indent Report</field>
+            <field name="model">indent.report.wizard</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">indent_process.indent_report_template</field>
+            <field name="report_file">indent_process.indent_report_template</field>
+            <field name="print_report_name">'Indent Report'</field>
+            <field name="paperformat_id" ref="indent_report_paperformat"/>
+        </record>
+
+        <record id="action_report_indent_xlsx" model="ir.actions.report">
+            <field name="name">Indent Report Excel</field>
+            <field name="model">indent.report.wizard</field>
+            <field name="report_type">xlsx</field>
+            <field name="report_name">indent_process.indent_report_xlsx</field>
+            <field name="report_file">Indent Report</field>
+            <field name="print_report_name">'Indent Report'</field>
+        </record>
+    </data>
+</odoo>
