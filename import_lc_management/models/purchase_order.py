@@ -178,6 +178,34 @@ class PurchaseOrder(models.Model):
             po_with_lc.lc_id._compute_purchase_related()
         return res
 
+    @api.depends('order_line.price_subtotal', 'company_id', 'local_currency')
+    def _amount_all(self):
+        AccountTax = self.env['account.tax']
+        for order in self:
+            order_lines = order.order_line.filtered(lambda x: not x.display_type)
+            base_lines = [line._prepare_base_line_for_taxes_computation() for line in order_lines]
+            AccountTax._add_tax_details_in_base_lines(base_lines, order.company_id)
+            AccountTax._round_base_lines_tax_details(base_lines, order.company_id)
+
+            tax_totals = AccountTax._get_tax_totals_summary(
+                base_lines=base_lines,
+                currency=order.currency_id or order.company_id.currency_id,
+                company=order.company_id,
+            )
+
+            # defaults
+            amount_untaxed = tax_totals.get('base_amount_currency', 0.0)
+            amount_tax = tax_totals.get('tax_amount_currency', 0.0)
+            amount_total = tax_totals.get('total_amount_currency', 0.0)
+            amount_total_cc = tax_totals.get('total_amount', 0.0)
+
+            # applying for Pasha group only (multiplier if local_currency > 0)
+            factor = order.local_currency if order.local_currency > 0 else 1.0
+
+            order.amount_untaxed = amount_untaxed * factor
+            order.amount_tax = amount_tax * factor
+            order.amount_total = amount_total * factor
+            order.amount_total_cc = amount_total_cc * factor
 
 
 

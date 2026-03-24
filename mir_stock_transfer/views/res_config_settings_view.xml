@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.brac.transfer</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="stock.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <block name="operations_setting_container" position="after">
+                <block title="Inter Company Adjustment Location" name="inter_company_adjustment_setting">
+                    <setting id="inter_company_adjustment_location" string="Inter Company Adjustment Location"
+                             help="Set the adjustment location for Inter Company Transfers">
+                        <field name="inter_company_adjustment_location_id" options="{'no_create': True}"
+                                domain="[('usage', '=', 'inventory')]"/>
+                    </setting>
+
+                    <setting id="inter_company_stock_valuation_journal" string="Inter Company Stock Valuation Journal">
+                        <field name="inter_company_stock_valuation_journal_id" options="{'no_create': True}"/>
+                    </setting>
+                </block>
+            </block>
+        </field>
+    </record>
+</odoo>

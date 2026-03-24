@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+mir_stock_transfer.access_inter_company_transfer,access_inter_company_transfer,mir_stock_transfer.model_inter_company_transfer,base.group_user,1,1,1,1
+mir_stock_transfer.access_inter_company_transfer_line,access_inter_company_transfer_line,mir_stock_transfer.model_inter_company_transfer_line,base.group_user,1,1,1,1

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_picking_form_procurement" model="ir.ui.view">
+        <field name="name">stock.picking.form</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//button[@name='%(stock.act_stock_return_picking)d']" position="attributes">
+                <attribute name="invisible">state != 'done'</attribute>
+            </xpath>
+            <xpath expr="//button[@name='button_validate'][2]" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_picking_form" model="ir.ui.view">
+        <field name="name">stock.picking.form</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+<!--            <xpath expr="//header" position="inside">-->
+<!--                <button class="btn-primary" name="create_second_picking" string="Second Picking" type="object" invisible="1"/>-->
+<!--            </xpath>-->
+            <xpath expr="//field[@name='location_id']" position="attributes">
+                <attribute name="invisible">0</attribute>
+            </xpath>
+            <xpath expr="//field[@name='user_id']" position="attributes">
+                <attribute name="invisible">0</attribute>
+            </xpath>
+            <xpath expr="//field[@name='location_dest_id']" position="attributes">
+                <attribute name="invisible">0</attribute>
+            </xpath>
+
+            <xpath expr="//field[@name='origin']" position="after">
+                <field name="indent_id" string="Indent" invisible="picking_type_code != 'internal'" force_save="1" readonly="1"/>
+            </xpath>
+            <xpath expr="//page[@name='operations']/field[@name='move_ids']/list/field[@name='company_id']" position="after">
+                <field name="indent_id" string="Indent" column_invisible="parent.picking_type_code != 'internal' or not parent.indent_id" force_save="1"/>
+                <field name="indent_line_id" string="Indent Line" column_invisible="parent.picking_type_code != 'internal' or not parent.indent_id" force_save="1"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

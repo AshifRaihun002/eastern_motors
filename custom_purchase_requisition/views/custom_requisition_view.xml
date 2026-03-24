@@ -61,20 +61,20 @@
                                 class="btn-primary"
                                 invisible="state != 'done'" groups="custom_purchase_requisition.group_pr_requester"/>
                         <button class="btn btn-warning"
-                                groups="custom_purchase_requisition.group_purchase_requisition_manager"
+                                groups="custom_purchase_requisition.group_pr_manager"
                                 invisible="state in ('draft','done', 'cancel') or not is_user_approver"
                                 name="send_back_note" string="Send Back" type="object"/>
 
                         <button class="btn btn-warning"
-                                groups="custom_purchase_requisition.group_purchase_requisition_manager"
+                                groups="custom_purchase_requisition.group_pr_manager"
                                 invisible="state not in ('done') or not is_user_approver " name="review_requisition"
                                 string="Review" type="object"/>
                         <button class="oe_highlight btn btn-danger"
-                                groups="custom_purchase_requisition.group_purchase_requisition_manager"
+                                groups="custom_purchase_requisition.group_pr_manager"
                                 invisible="state in ('done', 'cancel') or not is_user_approver"
                                 name="action_approval_cancel" status="confirm" string="Cancel" type="object"/>
                         <button name="button_draft"
-                                groups="custom_purchase_requisition.group_purchase_requisition_manager" type="object"
+                                groups="custom_purchase_requisition.group_pr_manager" type="object"
                                 string="Set To Draft" class="btn btn-primary"
                                 invisible="state in ('draft','done','approval_pending')"/>
                         <field name="state" statusbar_visible="draft,confirm,approval_pending,done" widget="statusbar"/>
@@ -294,6 +294,13 @@
             <field name="view_mode">list,form,graph,pivot</field>
             <field name="search_view_id" ref="view_requisition_process_search"/>
         </record>
+        <record id ="action_requisition_all_view" model="ir.actions.act_window">
+            <field name="name">Requisition All</field>
+            <field name="res_model">custom.purchase.requisition</field>
+            <field name="view_mode">list,form,graph,pivot</field>
+            <field name="type">ir.actions.act_window</field>
+        </record>
+
         <record id="action_req_approval" model="ir.actions.act_window">
             <field name="name">REQ Approval</field>
             <field name="res_model">approval.config</field>
@@ -303,12 +310,12 @@
         </record>
         <!-- Menu Item -->
         <menuitem id="menu_purchase_requisition_root" name="REQ" sequence="10"
-                  web_icon="custom_purchase_requisition,static/description/purchase.png"/>
+                  web_icon="custom_purchase_requisition,static/description/icon.png"/>
         <menuitem action="action_purchase_requisition" id="menu_purchase_requisition" name="Purchase Requisitions"
                   parent="purchase.menu_purchase_root" sequence="2"/>
 
-        <menuitem id="purchase_requisitions_all" name="Requisition" parent="menu_purchase_requisition"
-                  action="action_purchase_requisition" sequence="9"/>
+        <menuitem id="purchase_requisitions_all" name="Requisition" parent="menu_purchase_requisition_root"
+                  action="action_requisition_all_view" sequence="10"/>
 
 
         <record id="approve_requisition_server_action" model="ir.actions.server">

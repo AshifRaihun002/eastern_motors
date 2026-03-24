@@ -4,7 +4,7 @@ from datetime import datetime
 
 
 class PurchaseRequisition(models.Model):
-    _inherit = "brac.purchase.requisition"
+    _inherit = "custom.purchase.requisition"
 
     lc_ready_count = fields.Integer(compute="_compute_lc_count")
     lc_done_count = fields.Integer(compute="_compute_lc_count")

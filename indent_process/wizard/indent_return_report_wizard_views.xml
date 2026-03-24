@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_indent_return_report_wizard_form" model="ir.ui.view">
+        <field name="name">indent.return.report.wizard.form</field>
+        <field name="model">indent.return.report.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Return Report">
+                <group>
+                    <group>
+                        <field name="company_id" invisible="1"/>
+                        <field name="date_from"/>
+                        <field name="date_to"/>
+                    </group>
+                    <group>
+                        <field name="store_id" options="{'no_create': True}"/>
+                        <field name="to_unit_id" options="{'no_create': True}"/>
+                    </group>
+                </group>
+                <footer>
+                    <button name="action_print_excel" string="Print Excel" type="object" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_indent_return_report_wizard" model="ir.actions.act_window">
+        <field name="name">Return Report</field>
+        <field name="res_model">indent.return.report.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <menuitem id="menu_indent_return_report" name="Return Report" parent="indent_process.menu_indent_root" action="action_indent_return_report_wizard" sequence="20"/>
+</odoo>

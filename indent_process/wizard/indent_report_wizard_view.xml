@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_indent_report_wizard_form" model="ir.ui.view">
+            <field name="name">indent.report.wizard.form</field>
+            <field name="model">indent.report.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Indent Report">
+                    <group>
+                        <group>
+                            <field name="from_date"/>
+                            <field name="to_date"/>
+                            <field name="company_id" options="{'no_create': True}"/>
+                        </group>
+                        <group>
+                            <field name="status"/>
+                            <field name="product_ids" widget="many2many_tags" options="{'no_create': True}"/>
+                        </group>
+                    </group>
+                    <footer>
+                        <button name="action_print_pdf" string="Print PDF" type="object" class="btn-primary"/>
+                        <button name="action_print_excel" string="Print Excel" type="object" class="btn-primary"/>
+                        <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_indent_report_wizard" model="ir.actions.act_window">
+            <field name="name">Indent Report</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">indent.report.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+
+        <menuitem id="menu_indent_report" name="Indent Report" parent="indent_process.menu_indent_root" action="action_indent_report_wizard" sequence="100"/>
+    </data>
+</odoo>

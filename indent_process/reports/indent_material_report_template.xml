@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="indent_material_template">
+        <t t-call="brac_dairy_report_header.brac_dairy_common_external_layout">
+            <main>
+                <t t-foreach="docs" t-as="o">
+                    <div class="page">
+                        <h2 class="text-center text-decoration-underline">MATERIAL INDENT CUM ISSUE NOTE</h2>
+
+                        <div class="row">
+                            <div class="col-6" style="text-align:left;">DEPARTMENT:
+                                <t t-esc="o.requesting_department_id.name"/>
+                            </div>
+                            <div class="col-6" style="text-align:right;">
+                                <p>INDENT DATE:
+                                    <t t-esc="o.indent_date.strftime('%d-%m-%Y')"/>
+                                </p>
+                                <p>INDENT NO:
+                                    <t t-esc="o.name"/>
+                                </p>
+                                <t t-set="picking_len" t-value="len(o.picking_ids)"/>
+                                <p>ISSUE DATE:
+                                    <t t-out="o.issue_date.strftime('%d-%m-%Y') if o.issue_date else ''"/>
+                                </p>
+
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col">
+                                <table class="table table-sm" style="width:100%; border-collapse:collapse;" border="1">
+
+
+                                    <thead style="background:#f2f2f2;">
+                                        <tr>
+                                            <th class="text-center">Sl.No</th>
+                                            <th class="text-center">MATERIAL CODE</th>
+                                            <th class="text-center">Products</th>
+                                            <th class="text-end">INDENTED QTY</th>
+                                            <th class="text-end">Issue QTY</th>
+                                            <th class="text-center">UNIT</th>
+                                            <th class="text-center">REMARKS</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-set="sl" t-value="0"/>
+                                        <t t-foreach="o.indent_line_ids" t-as="line">
+                                            <tr>
+                                                <td class="text-center">
+                                                    <t t-set="sl" t-value="sl + 1"/>
+                                                    <t t-esc="sl"/>
+                                                </td>
+                                                <td>
+                                                    <t t-esc="line.product_id.default_code"/>
+                                                </td>
+                                                <td>
+                                                    <t t-esc="line.product_id.name"/>
+                                                </td>
+                                                <td class="text-end">
+                                                    <t t-esc="line.quantity"/>
+                                                </td>
+                                                <td class="text-end">
+                                                    <t t-esc="line.transferred_qty"/>
+                                                </td>
+                                                <td class="text-center">
+                                                    <t t-esc="line.product_uom.name"/>
+                                                </td>
+                                                <td class="text-center">
+                                                    <t t-esc="line.remarks"/>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="row d-inline-flex mt-5"
+                             style="width:100%; display:flex; justify-content:space-between; margin-top:30px;">
+                            <div class="col text-center">
+                                <div style="margin-bottom: 5px;">
+                                    <t t-if="o.indented_by_id">
+                                        <t t-esc="o.indented_by_id.name"/>
+                                    </t>
+                                    <t t-else="">
+                                        <div><br/></div>
+                                    </t>
+                                </div>
+                                <div style="border-top: 2px solid black; width:200px; margin: 0 auto;">
+                                    <b>Indented By</b>
+                                </div>
+                            </div>
+                            <div class="col text-center">
+                                <div style="margin-bottom: 5px;">
+                                    <t t-if="o.authorised_by_id">
+                                        <t t-esc="o.authorised_by_id.name"/>
+                                    </t>
+                                    <t t-else="">
+                                        <div><br/></div>
+                                    </t>
+                                </div>
+                                <div style="border-top: 2px solid black; width:200px; margin: 0 auto;">
+                                    <b>Authorised By</b>
+                                </div>
+                            </div>
+                            <div class="col text-center">
+                                <div style="margin-bottom: 5px;">
+                                    <t t-if="o.issued_by_id">
+                                        <t t-esc="o.issued_by_id.name"/>
+                                    </t>
+                                    <t t-else="">
+                                        <div><br/></div>
+                                    </t>
+                                </div>
+                                <div style="border-top: 2px solid black; width:200px; margin: 0 auto;">
+                                    <b>Issued By</b>
+                                </div>
+                            </div>
+                            <div class="col text-center">
+                                <div style="margin-bottom: 5px;">
+                                    <t t-if="o.received_by_id">
+                                        <t t-esc="o.received_by_id.name"/>
+                                    </t>
+                                    <t t-else="">
+                                        <div><br/></div>
+                                    </t>
+                                </div>
+                                <div style="border-top: 2px solid black; width:200px; margin: 0 auto;">
+                                    <b>Received By</b>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </main>
+        </t>
+    </template>
+</odoo>

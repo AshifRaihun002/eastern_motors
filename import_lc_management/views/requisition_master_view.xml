@@ -3,7 +3,7 @@
     <record id="view_purchase_requisition_form_inherit" model="ir.ui.view">
         <field name="name">purchase.requisition.form.inherit</field>
         <field name="model">custom.purchase.requisition</field>
-        <field name="inherit_id" ref="brac_procurement.view_purchase_requisition_form"/>
+        <field name="inherit_id" ref="custom_purchase_requisition.view_purchase_requisition_form"/>
         <field name="arch" type="xml">
 
             <header position="inside">
