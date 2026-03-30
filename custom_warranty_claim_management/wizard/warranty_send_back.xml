@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+
+        <record id="warranty_send_back_note_form" model="ir.ui.view">
+            <field name="nme">warranty.send.back.form</field>
+            <field name="model">send.back.wizard.warranty</field>
+            <field name="arch" type="xml">
+                <form string="Send Back Note">
+                    <sheet>
+                        <group>
+                            <field name="note" required="1"/>
+                        </group>
+                    </sheet>
+                    <footer>
+                        <button name="send_back_warranty"
+                                string="Send Back Claim"
+                                type="object"
+                                class="btn-primary"
+                                />
+                        <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_warranty_send_back_note" model="ir.actions.act_window">
+            <field name="name">Send Back Note</field>
+            <field name="res_model">send.back.wizard.warranty</field>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="warranty_send_back_note_form"/>
+            <field name="target">new</field>
+        </record>
+    </data>
+</odoo>

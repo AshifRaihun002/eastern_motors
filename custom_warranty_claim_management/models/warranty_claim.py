@@ -9,6 +9,7 @@ class WarrantyApproval(models.Model):
 class WarrantyClaim(models.Model):
     _name = "warranty.claim"
     _description = "Warranty Claim"
+    _inherit = ["log.history.mixin"]
     _order = "name desc, create_date desc"
 
     name = fields.Char(string="Warranty Ref", readonly=True, copy=False, help="Warranty Reference",
@@ -33,6 +34,7 @@ class WarrantyClaim(models.Model):
         ("closed", "Closed"),
     ], default="draft", string="Status")
 
+    # Inspector fields
     inspection_date = fields.Datetime(string="Inspection Date")
     inspector_observations = fields.Text(string="Inspector Observations")
     other_observations = fields.Text(string="Other Observations")
@@ -45,7 +47,7 @@ class WarrantyClaim(models.Model):
 
     # Todo: Add fields related to "Dealer Info"
 
-    # Todo: Add Approval
+    # Approval Related fields
     company_id = fields.Many2one(
         'res.company',
         string='Company',
@@ -70,13 +72,6 @@ class WarrantyClaim(models.Model):
         self.stage_id = False
         if self.approval_config_id and self.approval_config_id.approval_line_ids:
             self.stage_id = self.approval_config_id.approval_line_ids[0]
-
-    # approval_history_ids = fields.One2many(
-    #     'approval.history',
-    #     'res_id',
-    #     string="Approval History",
-    #     domain=lambda self: [('res_model', '=', self._name), ('company_id', '=', self.company_id.id)],
-    # )
 
     def open_send_back_wizard(self):
         """Open wizard to capture send-back note"""
@@ -122,19 +117,35 @@ class WarrantyClaim(models.Model):
         # Check user permission
         if next_stage and self.env.user not in self.stage_id.user_ids:
             raise UserError(_("You are not allowed to approve this stage."))
+        elif self.env.user not in self.stage_id.user_ids:
+            raise UserError(_("You are not allowed to approve this stage"))
 
         # Log to generic approval history
-        # self._log_history(
-        #     action_type='authorized',
-        #     stage_id=self.stage_id.id,
-        #     to_stage_id=next_stage.id if next_stage else False,
-        #     note=_("Approved by %s") % self.env.user.name
-        # )
+        self._log_history(
+            action_type='authorized',
+            stage_id=self.stage_id.id,
+            to_stage_id=next_stage.id if next_stage else False,
+            note=_("Approved by %s") % self.env.user.name
+        )
 
         if next_stage:
             self.write({'stage_id': next_stage.id, 'state': 'draft'})  # Keep state draft until final stage
         else:
             self.write({'stage_id': self.stage_id.id, 'state': 'approved'})  # Final approval
+
+    def open_send_back_wizard(self):
+        return {
+            "type": "ir.actions.act_window",
+            "name": _("Send Back Note"),
+            "res_model": "send.back.wizard",
+            "target": "new",
+            "view_mode": "form",
+            "context": {
+                "active_model": self._name,
+                "active_id": self.id,
+                "action_type": "sent_back",
+            }
+        }
 
     def assign_to_inspector(self):
         for record in self:
@@ -194,6 +205,7 @@ class WarrantyClaim(models.Model):
 
         return super(WarrantyClaim, self).create(vals_list)
 
+    # Dashboard related function
     @api.model
     def get_overview_data(self):
         today = date.today()
