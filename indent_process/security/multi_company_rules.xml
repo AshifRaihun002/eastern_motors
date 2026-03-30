@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <data noupdate="0">
+        <record id="indent_process_multi_company_rule" model="ir.rule">
+            <field name="name">IP: Multi-company</field>
+            <field name="model_id" ref="indent_process.model_indent_process"/>
+            <field name="domain_force">[('company_id', 'in', company_ids),('factory_plant', 'in', allowed_plants)]</field>
+        </record>
+        <record id="indent_line_multi_company_rule" model="ir.rule">
+            <field name="name">IL: Multi-company</field>
+            <field name="model_id" ref="indent_process.model_indent_line"/>
+            <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        </record>
+    </data>
+</odoo>

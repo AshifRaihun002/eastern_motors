@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="inherit_res_partner_views" model="ir.ui.view">
+        <field name="name">inherit.res.partner.views</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='function']" position="before">
+                <field name="is_customer"/>
+                <field name="is_vendor"/>
+                <field name="nid"/>
+                <field name="tin"/>
+            </xpath>
+        </field>
+    </record>
+
+<!--    <record id="inherit_account_move_views" model="ir.ui.view">-->
+<!--        <field name="name">inherit.account.move.views</field>-->
+<!--        <field name="model">account.move</field>-->
+<!--        <field name="inherit_id" ref="account.view_move_form"/>-->
+<!--        <field name="arch" type="xml">-->
+<!--            <xpath expr="//field[@name='partner_id']" position="attributes">-->
+<!--                <attribute name="context">{'res_partner_search_mode': (context.get('default_move_type', 'entry') in ('out_invoice', 'out_refund', 'out_receipt') and 'customer')-->
+<!--                    or (context.get('default_move_type', 'entry') in ('in_invoice', 'in_refund', 'in_receipt') and 'supplier') or False,-->
+<!--                    'show_address': 1, 'default_is_company': True, 'show_vat': True, 'default_is_customer': (context.get('default_move_type', 'entry') in ('out_invoice', 'out_refund', 'out_receipt') and 'customer'),-->
+<!--                    'default_is_vendor': (context.get('default_move_type', 'entry') in ('in_invoice', 'in_refund', 'in_receipt') and 'supplier')}</attribute>-->
+<!--            </xpath>-->
+<!--        </field>-->
+<!--    </record>-->
+
+<!--    <record id="account.res_partner_action_supplier" model="ir.actions.act_window">-->
+<!--        <field name="context">{'search_default_supplier': 1,'res_partner_search_mode': 'supplier', 'default_is_company': True, 'default_supplier_rank': 1, 'default_is_vendor': 1}</field>-->
+<!--        <field name="domain">[('is_vendor', '=', 1)]</field>-->
+<!--    </record>-->
+
+<!--    <record id="account.res_partner_action_customer" model="ir.actions.act_window">-->
+<!--        <field name="context">{'search_default_customer': 1,'res_partner_search_mode': 'customer', 'default_is_company': True, 'default_customer_rank': 1, 'default_is_customer': 1}</field>-->
+<!--        <field name="domain">[('is_customer', '=', 1)]</field>-->
+<!--    </record>-->
+</odoo>

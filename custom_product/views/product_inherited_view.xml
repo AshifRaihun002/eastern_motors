@@ -1,0 +1,29 @@
+<odoo>
+    <record id="view_product_template_form_inherit_custom_fields" model="ir.ui.view">
+        <field name="name">product.template.form.inherit.custom.fields</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_form_view"/>
+        <field name="arch" type="xml">
+
+            <!-- Add a new tab inside the notebook -->
+            <xpath expr="//page[@name='general_information']" position="inside">
+                <group>
+                    <group>
+                        <field name="size"/>
+                        <field name="pr"/>
+                        <field name="pattern"/>
+                        <field name="rim"/>
+                    </group>
+                    <group>
+                        <field name="set"/>
+                        <field name="type_id"/>
+                        <field name="group_id"/>
+                        <field name="vendor_product_code"/>
+                        <field name="hs_code"/>
+                    </group>
+                </group>
+            </xpath>
+
+        </field>
+    </record>
+</odoo>

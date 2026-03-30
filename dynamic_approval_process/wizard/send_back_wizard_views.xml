@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_send_back_wizard_form" model="ir.ui.view">
+        <field name="name">send.back.wizard.form</field>
+        <field name="model">send.back.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Send Back">
+                <sheet>
+                    <group>
+                        <field name="note" placeholder="Enter reason for sending back"/>
+                        <field name="company_id" invisible="1"/>
+                    </group>
+                </sheet>
+                <footer>
+                    <button string="Send Back" type="object" name="action_send_back" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>
+

@@ -1,0 +1,35 @@
+{
+    'name': 'LC Management',
+
+    'version': '19.0.1.1.1',
+
+    'category': 'Purchase',
+    'sequence': 1,
+    'summary': 'Manage your foreign purchase activities',
+    'description': """Manage your foreign purchase activities.""",
+    'author': 'Mir InfoSys',
+    'depends': [
+        'base', 'purchase', 'mail', 'stock', 'accountant', 'stock_landed_costs', 'stock_accountant',
+        'misl_partner',
+    ],
+    'data': [
+        'security/lc_groups.xml',
+        'security/ir.model.access.csv',
+        'data/lc_sequence.xml',
+        'wizard/add_custom_payment_wizard_view.xml',
+        'wizard/add_vendor_bill_view.xml',
+        'wizard/custom_duty_wizard_vew.xml',
+        'wizard/lc_wizard_view.xml',
+        'wizard/shipment_wizard_custom_duty_view.xml',
+        'wizard/shipment_vendor_bill_wizard_view.xml',
+        'views/menu_items.xml',
+        'views/letter_credit_views.xml',
+        'views/lc_shipment_view.xml',
+        'views/purchase_order_view.xml',
+        'views/account_move_custom.xml',
+        'views/landed_cost_template_views.xml',
+        'views/stock_landed_cost_view.xml',
+    ],
+    'application': True,
+    'license': 'LGPL-3',
+}
