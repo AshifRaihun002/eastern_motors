@@ -6,17 +6,15 @@
         <field name="arch" type="xml">
 
             <!-- Add a new tab inside the notebook -->
-            <xpath expr="//page[@name='general_information']" position="inside">
-                <div class="oe_title">
-                    <h3>Other Attributes Section</h3>
-                </div>
-                <group sreing="Other Attributes">
+            <xpath expr="//group[@name='internal_notes']" position="before">
+                <group string="Other Attributes">
                     <group>
                         <field name="size"/>
                         <field name="pr"/>
                         <field name="pattern"/>
                         <field name="type_id"/>
                         <field name="rim"/>
+                        <field name="weight"/>
                     </group>
                     <group>
                         <field name="set"/>

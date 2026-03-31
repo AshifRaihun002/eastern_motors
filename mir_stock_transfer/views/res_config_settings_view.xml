@@ -20,4 +20,17 @@
             </block>
         </field>
     </record>
+
+    <record id="view_account_account_form_inherit_intercompany" model="ir.ui.view">
+        <field name="name">account.account.form.inherit.intercompany</field>
+        <field name="model">account.account</field>
+        <field name="inherit_id" ref="account.view_account_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='account_type']" position="after">
+                <field name="is_inter_company_receivable" invisible="account_type !='asset_receivable'"/>
+                <field name="is_inter_company_payable" invisible="account_type !='liability_payable'"/>
+            </xpath>
+        </field>
+    </record>
+
 </odoo>
