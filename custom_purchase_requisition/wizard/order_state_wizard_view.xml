@@ -1,0 +1,25 @@
+<odoo>
+    <record id="view_purchase_order_status_wizard_form" model="ir.ui.view">
+        <field name="name">purchase.order.status.wizard.form</field>
+        <field name="model">purchase.order.status.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Update Order Status">
+                <group>
+                    <field name="purchase_order_id" readonly="1"/>
+                    <field name="current_status" readonly="1"/>
+                    <field name="new_status"/>
+                    <field name="remarks"/>
+                </group>
+                <footer>
+                    <button name="action_update_status"
+                            string="Update"
+                            type="object"
+                            class="btn-primary"/>
+                    <button string="Cancel"
+                            class="btn-secondary"
+                            special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

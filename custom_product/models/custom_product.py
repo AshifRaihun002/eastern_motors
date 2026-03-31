@@ -12,6 +12,7 @@ class ProductTemplate(models.Model):
     set = fields.Char(string="Set")
     vendor_product_code = fields.Char(string="Vendor Product Code")
     hs_code = fields.Char(string="HS Code")
+    origen = fields.Many2one('res.country', string='Origen')
 
     type_id = fields.Many2one("product.custom.type", string="Type")
     group_id = fields.Many2one("product.custom.group", string="Group")
