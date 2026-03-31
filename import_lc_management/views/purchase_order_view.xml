@@ -32,7 +32,7 @@
             <xpath expr="//header/button[@name='button_confirm']" position="after">
                 <!-- Approve button -->
                 <button name="action_create_lc" type="object" string="LC Create" class="oe_highlight"
-                        invisible="not (state not in ('draft','cancel','sent') and purchase_process in ('foreign_purchase','local_purchase')  or  lc_id.state == 'cancel')"/>
+                        invisible="state not in ('draft','cancel','sent') and purchase_process != 'foreign_purchase'  or  lc_id.state != 'cancel'"/>
             </xpath>
 
             <xpath expr="//field[@name='order_line']/list//field[@name='price_unit']" position="after">

@@ -1,6 +1,6 @@
 {
     'name': 'Purchase Requisition',
-    'version': '19.0.1.1.1',
+    'version': '19.0.1.1.2',
 
     'category': 'Purchase',
     'summary': ' Purchase Requisition in Odoo 19',
@@ -21,7 +21,10 @@
         'data/purchase_requisition_email_template.xml',
         'views/custom_requisition_view.xml',
         'views/custom_pr_purchase_order.xml',
+        'views/po_notification_setting.xml',
         'data/requisition_sequence_data.xml',
+        'data/purchase_notification_cron.xml',
+        'wizard/order_state_wizard_view.xml',
 
     ],
 

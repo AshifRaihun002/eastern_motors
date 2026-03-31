@@ -1,7 +1,7 @@
 {
     'name': 'LC Management',
 
-    'version': '19.0.1.1.1',
+    'version': '19.0.1.1.2',
 
     'category': 'Purchase',
     'sequence': 1,

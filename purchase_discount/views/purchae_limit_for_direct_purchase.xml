@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_purchase_order_form_direct_purchase_warning" model="ir.ui.view">
+        <field name="name">purchase.order.form.direct.purchase.warning</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="brac_procurement.view_purchase_order_form_inherit"/>
+        <field name="arch" type="xml">
+            <!-- Add warning banner -->
+            <xpath expr="//sheet" position="before">
+                <div class="alert alert-warning" role="alert"
+                     invisible="not (procurement_method == 'direct_purchase' and is_direct_purchase_limit_exceeded)">
+                    <strong>
+                        <i class="fa fa-warning"/> Direct Purchase Limit Exceeded!
+                    </strong>
+                    <br/>
+                    Total amount exceeds the configured direct purchase limit.
+                    <span>
+                        Current Total: <field name="amount_total" widget="monetary"
+                                               options="{'currency_field': 'currency_id'}"
+                                               nolabel="1" readonly="1"/>
+                    </span>
+                </div>
+            </xpath>
+
+            <!-- Add limit info near procurement method -->
+            <xpath expr="//field[@name='procurement_method']" position="after">
+                <div class="o_row" invisible="procurement_method != 'direct_purchase'">
+                    <label for="procurement_method" string="Direct Purchase Limit:" class="o_form_label"/>
+                    <span class="text-muted">
+                        <field name="direct_purchase_limit_display" nolabel="1" readonly="1"/>
+                    </span>
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>
