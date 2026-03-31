@@ -9,9 +9,8 @@
     'description': """Manage your Product.""",
     'author': 'Mir InfoSys',
     'depends': [
-        'base', 'mail', 'stock', 'account','product','purchase',
-
-    ],
+        'base', 'mail','product','purchase',
+    ], #'stock', 'accountant',
     'data': [
         'security/ir.model.access.csv',
         'views/custom_product_view.xml',
