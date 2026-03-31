@@ -12,3 +12,4 @@ class WarrantyClaimLine(models.Model):
     product_qty = fields.Float(string="Quantity")
     price_unit =  fields.Float(string="Unit Price")
     serial_number = fields.Char(string="Serial No.", required=True)
+    pattern = fields.Char(string="Pattern")

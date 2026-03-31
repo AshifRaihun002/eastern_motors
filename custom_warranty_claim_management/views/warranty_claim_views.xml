@@ -98,6 +98,7 @@
                                 <list editable="bottom">
                                     <field name="product_id"/>
                                     <field name="serial_number"/>
+                                    <field name="pattern"/>
                                     <field name="name"/>
                                     <field name="product_qty"/>
                                     <field name="price_unit"/>

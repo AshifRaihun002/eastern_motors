@@ -144,49 +144,6 @@ class WarrantyClaim(models.Model):
             }
         }
 
-    def approve_process(self):
-        """Approve Indent with stage flow and log history"""
-        self.ensure_one()
-        # Validation: Must have lines
-        if not self.line_ids:
-            raise ValidationError(_("No Products Added to the Indent. Please Add Products to Proceed."))
-
-        # Validation: Must have approval config
-        if not self.approval_config_id:
-            raise ValidationError(_("No Approval Config found. Please configure approval stages first."))
-
-        current_stage_sequence = self.stage_id.sequence
-        user_dept = self.env.user.employee_id.department_id
-
-        if user_dept != self.requesting_department_id:
-            raise UserError(_(
-                "You are not allowed to approve this stage. "
-                "Only the %s department can approve."
-            ) % user_dept.name)
-
-        # Find next stage
-        next_stage = self.stage_id.get_next_stage(self.approval_config_id.id, current_stage_sequence,
-                                                  self.company_id.id)
-
-        # Check user permission
-        if next_stage and self.env.user not in self.stage_id.user_ids:
-            raise UserError(_("You are not allowed to approve this stage."))
-        elif self.env.user not in self.stage_id.user_ids:
-            raise UserError(_("You are not allowed to approve this stage"))
-
-        # Log to generic approval history
-        self._log_history(
-            action_type='authorized',
-            stage_id=self.stage_id.id,
-            to_stage_id=next_stage.id if next_stage else False,
-            note=_("Approved by %s") % self.env.user.name
-        )
-
-        if next_stage:
-            self.write({'stage_id': next_stage.id, 'state': 'in_approval'})  # Keep state draft until final stage
-        else:
-            self.write({'stage_id': self.stage_id.id, 'state': 'approved'})  # Final approval
-
     def open_send_back_wizard(self):
         return {
             "type": "ir.actions.act_window",
@@ -237,6 +194,7 @@ class WarrantyClaim(models.Model):
                     "product_qty": line.product_uom_qty,
                     "price_unit": line.price_unit,
                     "name": line.name,
+                    "pattern": line.product_id.pattern,
                 }))
             self.line_ids = lines
 
