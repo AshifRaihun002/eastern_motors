@@ -49,8 +49,8 @@
                     <button name="inspection_done" type="object" string="Inspection Done"
                             groups="custom_warranty_claim_management.warranty_claim_inspector"
                             invisible="state not in ['assigned']"/>
-                    <button class="oe_highlight" name="approve_process" string="Approve" type="object"/>
-                    <button name="open_send_back_wizard" type="object" string="Send Back" class="btn-secondary"/>
+                    <button class="oe_highlight" invisible="state not in ['in_approval'] or not is_user_approver" name="open_approve_wizard" string="Approve" type="object"/>
+                    <button name="open_send_back_wizard" type="object" string="Send Back" class="btn-secondary" invisible="state not in ['in_approval'] or not is_user_approver"/>
                     <field name="stage_id" widget="statusbar"
                            options="{'clickable': '1'}"
                            domain="[('config_id', '=', approval_config_id)]"/>
@@ -62,12 +62,13 @@
                     <div class="oe_title">
                         <h1>
                             <field name="name" readonly="1"/>
+                            <field name="company_id" readonly="1" style="font-size:16px;"/>
                         </h1>
                     </div>
                     <!--User-->
                     <group groups="custom_warranty_claim_management.warranty_claim_user">
                         <field name="sales_order_id" readonly="state not in ['draft']"/>
-                        <field name="approval_config_id" string="Approval Config" readonly="state not in ['draft']"/>
+                        <field name="approval_config_id" string="Approval Config" readonly="1"/>
                         <field name="customer_id" required="1" readonly="state not in ['draft']"/>
                         <field name="salesperson_id" readonly="state not in ['draft']"/>
                         <field name="mobile" required="1" readonly="state not in ['draft']"/>
@@ -163,6 +164,18 @@
                                     </list>
                                 </field>
                             </group>
+                        </page>
+
+                        <page string="Approval History">
+                            <field name="approval_history_ids" readonly="1">
+                                <list create="false" edit="true" delete="false">
+                                    <field name="date"/>
+                                    <field name="stage_id"/>
+                                    <field name="user_id"/>
+                                    <field name="action_type"/>
+                                    <field name="note"/>
+                                </list>
+                            </field>
                         </page>
                     </notebook>
                 </sheet>

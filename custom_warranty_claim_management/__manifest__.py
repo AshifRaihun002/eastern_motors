@@ -23,6 +23,7 @@
         "views/warranty_overview_views.xml",
         "views/warranty_claim_views.xml",
         "views/menu_views.xml",
+        "wizard/warranty_approve.xml"
     ],
     "assets": {
         "web.assets_backend": [
@@ -34,5 +35,5 @@
     "installable": True,
     "application": True,
     "auto_install": False,
-    "licence": "LGPL-3",
+    "license": "LGPL-3",
 }

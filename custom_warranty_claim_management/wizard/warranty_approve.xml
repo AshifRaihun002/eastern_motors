@@ -2,19 +2,19 @@
 <odoo>
     <data>
 
-        <record id="warranty_send_back_note_form" model="ir.ui.view">
-            <field name="nme">warranty.send.back.form</field>
-            <field name="model">send.back.wizard.warranty</field>
+        <record id="warranty_approve_note_form" model="ir.ui.view">
+            <field name="name">warranty.approve.note.form</field>
+            <field name="model">approve.warranty.wizard</field>
             <field name="arch" type="xml">
-                <form string="Send Back Note">
+                <form string="Approve Note">
                     <sheet>
                         <group>
                             <field name="note" required="1"/>
                         </group>
                     </sheet>
                     <footer>
-                        <button name="send_back_warranty"
-                                string="Send Back Claim"
+                        <button name="approve_warranty"
+                                string="Approve"
                                 type="object"
                                 class="btn-primary"
                                 />
@@ -24,11 +24,11 @@
             </field>
         </record>
 
-        <record id="action_warranty_send_back_note" model="ir.actions.act_window">
-            <field name="name">Send Back Note</field>
-            <field name="res_model">send.back.wizard.warranty</field>
+        <record id="action_warranty_approve_note" model="ir.actions.act_window">
+            <field name="name">Approve Note</field>
+            <field name="res_model">approve.warranty.wizard</field>
             <field name="view_mode">form</field>
-            <field name="view_id" ref="warranty_send_back_note_form"/>
+            <field name="view_id" ref="warranty_approve_note_form"/>
             <field name="target">new</field>
         </record>
     </data>

@@ -21,7 +21,7 @@ class WarrantyClaim(models.Model):
     email = fields.Char(string="Email")
     Address = fields.Char(string="Address")
     sales_order_date = fields.Datetime(string="Sales Order Date")
-    inspector = fields.Many2one("res.users", string="Inspector")
+    inspector = fields.Many2one("res.users", string="Inspector", domain=lambda self: self._get_inspector_domain())
     warranty_claim_date = fields.Datetime(string="Warranty Claim Date", default=lambda self: fields.Datetime.now())
     line_ids = fields.One2many("warranty.claim.line", "claim_id", string="Order Lines")
     state = fields.Selection([
@@ -58,7 +58,8 @@ class WarrantyClaim(models.Model):
 
     requesting_department_id = fields.Many2one('hr.department', default=lambda self: self.env.user.employee_id.department_id)
 
-    approval_config_id = fields.Many2one("approval.config", domain="[('approval_type', '=', 'warranty'), ('company_id', '=', company_id)]", string="Approval Config")
+    # approval_config_id = fields.Many2one("approval.config", domain="[('approval_type', '=', 'warranty'), ('company_id', '=', company_id)]", string="Approval Config")
+    approval_config_id = fields.Many2one("approval.config", default= lambda self: self.env["approval.config"].sudo().search([("approval_type", "=", "warranty")], limit=1), string="Approval Config")
 
     stage_id = fields.Many2one(
         "approval.line",
@@ -67,11 +68,31 @@ class WarrantyClaim(models.Model):
         domain="[('config_id', '=', approval_config_id)]",
     )
 
+    approval_history_ids = fields.One2many(
+        'approval.history',
+        'res_id',
+        string="Approval History",
+        domain=lambda self: [('res_model', '=', self._name), ('company_id', '=', self.company_id.id)],
+    )
+
+    is_user_approver = fields.Boolean(default=False, compute="_compute_is_user_approver")
+
+    def _get_inspector_domain(self):
+        group = self.env.ref("custom_warranty_claim_management.warranty_claim_inspector")
+        return [('group_ids', 'in', group.ids)]
+
     @api.onchange('approval_config_id')
     def _onchange_approval_config_id(self):
         self.stage_id = False
         if self.approval_config_id and self.approval_config_id.approval_line_ids:
             self.stage_id = self.approval_config_id.approval_line_ids[0]
+
+    @api.depends("stage_id.user_ids")
+    def _compute_is_user_approver(self):
+        for rec in self:
+            has_approval_access = self.env.user in rec.stage_id.user_ids
+
+            rec.is_user_approver = has_approval_access
 
     def open_send_back_wizard(self):
         """Open wizard to capture send-back note"""
@@ -88,6 +109,39 @@ class WarrantyClaim(models.Model):
                 'active_id': self.id,
                 'active_model': self._name
             },
+        }
+
+    def open_approve_wizard(self):
+        self.ensure_one()
+
+        # Validation: Must have lines
+        if not self.line_ids:
+            raise ValidationError(_("No Products Added to the Indent. Please Add Products to Proceed."))
+
+        # Validation: Must have approval config
+        if not self.approval_config_id:
+            raise ValidationError(_("No Approval Config found. Please configure approval stages first."))
+
+        current_stage_sequence = self.stage_id.sequence
+        user_dept = self.env.user.employee_id.department_id
+
+        if user_dept != self.requesting_department_id:
+            raise UserError(_(
+                "You are not allowed to approve this stage. "
+                "Only the %s department can approve."
+            ) % user_dept.name)
+
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Approve Note'),
+            'res_model': 'approve.warranty.wizard',
+            'target': 'new',
+            'view_mode': 'form',
+            'context': {
+                'default_note': '',
+                'active_id': self.id,
+                'active_model': self._name,
+            }
         }
 
     def approve_process(self):
@@ -129,7 +183,7 @@ class WarrantyClaim(models.Model):
         )
 
         if next_stage:
-            self.write({'stage_id': next_stage.id, 'state': 'draft'})  # Keep state draft until final stage
+            self.write({'stage_id': next_stage.id, 'state': 'in_approval'})  # Keep state draft until final stage
         else:
             self.write({'stage_id': self.stage_id.id, 'state': 'approved'})  # Final approval
 
@@ -166,7 +220,7 @@ class WarrantyClaim(models.Model):
         for record in self:
             if record.state == "assigned":
                 if record.inspector_observations and record.inspection_date:
-                    record.state = "inspected"
+                    record.state = "in_approval"
                 else:
                     raise UserError(_("Inspection Date and Observation required"))
             else:
