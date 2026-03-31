@@ -187,7 +187,7 @@ class InterCompanyTransfer(models.Model):
                 'company_id': self.source_company_id.id
             })
 
-            picking_out.sudo().with_context(skip_backorder=True).button_validate()
+            picking_out.sudo().with_context(skip_backorder=True).action_confirm()
             self.state = 'sent'
 
 
@@ -452,3 +452,9 @@ class AccountMove(models.Model):
     _inherit = 'account.move'
 
     inter_company_transfer_id = fields.Many2one('inter.company.transfer', string='Inter Company Transfer Line')
+
+class AccountAccount(models.Model):
+    _inherit = 'account.account'
+
+    is_inter_company_receivable = fields.Boolean(string='Is Inter Company Receivable')
+    is_inter_company_payable = fields.Boolean(string='Is Inter Company Payable')

@@ -9,7 +9,7 @@
     'author': "MISL",
 
     'category': 'Uncategorized',
-    'version': '19.0.0.1',
+    'version': '19.0.0.2',
     'license': 'LGPL-3',
 
     'depends': ['base', 'mail', 'stock', 'account', 'uom', 'account_asset','custom_purchase_requisition'],
