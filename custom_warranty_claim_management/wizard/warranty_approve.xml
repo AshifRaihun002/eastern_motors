@@ -10,6 +10,9 @@
                     <sheet>
                         <group>
                             <field name="note" required="1"/>
+                            <field name="approval_decision" invisible="not is_last_approval_stage"/>
+                            <field name="total_price" readonly="1" invisible="approval_decision not in ['refund']"/>
+                            <field name="refund_amount" invisible="approval_decision not in ['refund']"/>
                         </group>
                     </sheet>
                     <footer>

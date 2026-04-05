@@ -49,8 +49,10 @@
                     <button name="inspection_done" type="object" string="Inspection Done"
                             groups="custom_warranty_claim_management.warranty_claim_inspector"
                             invisible="state not in ['assigned']"/>
-                    <button class="oe_highlight" invisible="state not in ['in_approval'] or not is_user_approver" name="open_approve_wizard" string="Approve" type="object"/>
-                    <button name="open_send_back_wizard" type="object" string="Send Back" class="btn-secondary" invisible="state not in ['in_approval'] or not is_user_approver"/>
+                    <button class="oe_highlight" invisible="state not in ['in_approval'] or not is_user_approver"
+                            name="open_approve_wizard" string="Approve" type="object"/>
+                    <button name="open_send_back_wizard" type="object" string="Send Back" class="btn-secondary"
+                            invisible="state not in ['in_approval'] or not is_user_approver"/>
                     <field name="stage_id" widget="statusbar"
                            options="{'clickable': '1'}"
                            domain="[('config_id', '=', approval_config_id)]"/>
@@ -58,7 +60,6 @@
                 </header>
 
                 <sheet>
-                    <!--Todo: Add buttons-->
                     <div class="oe_title">
                         <h1>
                             <field name="name" readonly="1"/>
@@ -68,7 +69,7 @@
                     <!--User-->
                     <group groups="custom_warranty_claim_management.warranty_claim_user">
                         <group>
-                            <field name="sales_order_id" readonly="state not in ['draft']"/>
+                            <field name="sales_order_id" readonly="state not in ['draft']" options="{'no_quick_create': True, 'no_create': True, 'no_create_edit': True, 'no_open': True}"/>
                             <field name="approval_config_id" string="Approval Config" readonly="1"/>
                             <field name="customer_id" required="1" readonly="state not in ['draft']"/>
                             <field name="salesperson_id" readonly="state not in ['draft']"/>
@@ -80,10 +81,11 @@
                             <field name="inspector" readonly="state not in ['draft']"/>
                             <field name="sales_order_date" required="1" readonly="state not in ['draft']"/>
                             <field name="warranty_claim_date" required="1" readonly="state not in ['draft']"/>
+                            <field name="approval_decision" readonly="1"/>
                         </group>
                     </group>
                     <!--Other Users-->
-                    <group groups="custom_warranty_claim_management.warranty_claim_inspector">
+                    <group groups="custom_warranty_claim_management.warranty_claim_inspector,custom_warranty_claim_management.warranty_claim_approver">
                         <group>
                             <field name="sales_order_id" readonly="1"/>
                             <field name="approval_config_id" string="Approval Config" readonly="1"/>
@@ -97,6 +99,7 @@
                             <field name="inspector" readonly="1"/>
                             <field name="sales_order_date" readonly="1"/>
                             <field name="warranty_claim_date" readonly="1"/>
+                            <field name="approval_decision" readonly="1"/>
                         </group>
                     </group>
 
@@ -104,7 +107,7 @@
                         <page string="Products">
                             <field name="line_ids" readonly="state not in ['draft']">
                                 <list editable="bottom">
-                                    <field name="product_id"/>
+                                    <field name="product_id" options="{'no_quick_create': True, 'no_create': True, 'no_create_edit': True, 'no_open': True}"/>
                                     <field name="serial_number"/>
                                     <field name="pattern"/>
                                     <field name="name"/>
@@ -112,11 +115,19 @@
                                     <field name="price_unit"/>
                                 </list>
                             </field>
+                            <!--User-->
+                            <group  groups="custom_warranty_claim_management.warranty_claim_user">
+                                <field name="total_price"/>
+                            </group>
+                            <!--Other Users-->
+                            <group  groups="custom_warranty_claim_management.warranty_claim_inspector,custom_warranty_claim_management.warranty_claim_approver">
+                                <field name="total_price" readonly="1"/>
+                            </group>
                         </page>
 
                         <page string="Inspector Form">
                             <!--Other Users-->
-                            <group groups="custom_warranty_claim_management.warranty_claim_user">
+                            <group groups="custom_warranty_claim_management.warranty_claim_user,custom_warranty_claim_management.warranty_claim_approver">
                                 <field name="inspection_date" readonly="1"/>
                                 <field name="inspector_observations" readonly="1"/>
                                 <field name="other_observations" readonly="1"/>
@@ -182,7 +193,9 @@
                                     <field name="stage_id"/>
                                     <field name="user_id"/>
                                     <field name="action_type"/>
+                                    <field name="approval_decision"/>
                                     <field name="note"/>
+                                    <field name="refund_amount"/>
                                 </list>
                             </field>
                         </page>

@@ -30,5 +30,11 @@
             <field name="sequence">5</field>
             <field name="privilege_id" ref="warranty_claim_privilege"/>
         </record>
+
+        <record id="warranty_claim_approver" model="res.groups">
+            <field name="name">Approver</field>
+            <field name="sequence">10</field>
+            <field name="privilege_id" ref="warranty_claim_privilege"/>
+        </record>
     </data>
 </odoo>

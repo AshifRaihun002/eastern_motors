@@ -7,5 +7,7 @@
             <field name="domain_force">[('state', 'in', ['assigned', 'inspected', 'in_approval']), ('inspector', '=', user.id)]</field>
             <field name="groups" eval="[(4, ref('custom_warranty_claim_management.warranty_claim_inspector'))]"/>
         </record>
+
+
     </data>
 </odoo>

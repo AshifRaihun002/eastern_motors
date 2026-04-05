@@ -6,6 +6,16 @@ class WarrantyApproval(models.Model):
     _inherit = 'approval.config'
     approval_type = fields.Selection(selection_add=[('warranty', 'Warranty Claim')], ondelete={'warranty': 'set default'})
 
+class WarrantyDecision(models.Model):
+    _inherit = "approval.history"
+
+    approval_decision = fields.Selection([
+        ('no_action', 'No Action'),
+        ('refund', 'Refund'),
+        ('replacement', 'Replacement'),
+    ])
+    refund_amount = fields.Float(string="Refund Amount")
+
 class WarrantyClaim(models.Model):
     _name = "warranty.claim"
     _description = "Warranty Claim"
@@ -77,6 +87,24 @@ class WarrantyClaim(models.Model):
 
     is_user_approver = fields.Boolean(default=False, compute="_compute_is_user_approver")
 
+    is_last_approval_stage = fields.Boolean(default=False, compute="_is_last_approval_stage")
+
+    approval_decision = fields.Selection([
+        ('no_action', 'No Action'),
+        ('refund', 'Refund'),
+        ('replacement', 'Replacement'),
+    ], string="Approval Decision")
+    refund_amount = fields.Float(string="Refund Amount")
+
+    total_price = fields.Float(string="Total Price")
+
+    @api.onchange("line_ids")
+    def _calculate_total_price(self):
+        total_price = 0.0
+        for line in self.line_ids:
+            total_price += line.price_unit*line.product_qty
+        self.total_price = total_price
+
     def _get_inspector_domain(self):
         group = self.env.ref("custom_warranty_claim_management.warranty_claim_inspector")
         return [('group_ids', 'in', group.ids)]
@@ -93,6 +121,12 @@ class WarrantyClaim(models.Model):
             has_approval_access = self.env.user in rec.stage_id.user_ids
 
             rec.is_user_approver = has_approval_access
+
+    @api.depends("stage_id")
+    def _is_last_approval_stage(self):
+        for rec in self:
+            if rec.stage_id:
+                rec.is_last_approval_stage = self.stage_id.is_final()
 
     def open_send_back_wizard(self):
         """Open wizard to capture send-back note"""
@@ -123,13 +157,6 @@ class WarrantyClaim(models.Model):
             raise ValidationError(_("No Approval Config found. Please configure approval stages first."))
 
         current_stage_sequence = self.stage_id.sequence
-        user_dept = self.env.user.employee_id.department_id
-
-        if user_dept != self.requesting_department_id:
-            raise UserError(_(
-                "You are not allowed to approve this stage. "
-                "Only the %s department can approve."
-            ) % user_dept.name)
 
         return {
             'type': 'ir.actions.act_window',
@@ -141,20 +168,8 @@ class WarrantyClaim(models.Model):
                 'default_note': '',
                 'active_id': self.id,
                 'active_model': self._name,
-            }
-        }
-
-    def open_send_back_wizard(self):
-        return {
-            "type": "ir.actions.act_window",
-            "name": _("Send Back Note"),
-            "res_model": "send.back.wizard",
-            "target": "new",
-            "view_mode": "form",
-            "context": {
-                "active_model": self._name,
-                "active_id": self.id,
-                "action_type": "sent_back",
+                'default_is_last_approval_stage': self.is_last_approval_stage,
+                'default_total_price': self.total_price,
             }
         }
 
@@ -184,10 +199,11 @@ class WarrantyClaim(models.Model):
                 raise UserError(_("Not in correct state"))
 
     @api.onchange("sales_order_id")
-    def onchange_sales_order(self):
+    def _onchange_sales_order(self):
         if self.sales_order_id:
             self.line_ids = [(5, 0, 0)]
             lines = []
+            total_price = 0.0
             for line in self.sales_order_id.order_line:
                 lines.append((0, 0, {
                     "product_id": line.product_id.id,
@@ -196,7 +212,9 @@ class WarrantyClaim(models.Model):
                     "name": line.name,
                     "pattern": line.product_id.pattern,
                 }))
+                total_price += line.price_unit*line.product_uom_qty
             self.line_ids = lines
+            self.total_price = total_price
 
         for record in self:
             if record.sales_order_id:
