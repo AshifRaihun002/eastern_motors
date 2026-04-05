@@ -9,6 +9,7 @@
     'description': """Manage your Product.""",
     'author': 'Mir InfoSys',
     'depends': [
+
         'base', 'mail', 'stock', 'accountant','product','purchase',
     ],
     'data': [

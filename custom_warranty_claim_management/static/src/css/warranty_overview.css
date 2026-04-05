@@ -1,0 +1,81 @@
+.o_warranty_overview {
+    padding: 20px;
+    background-color: #f9f9f9;
+    min-height: 100%;
+}
+
+.o_warranty_overview_header {
+    margin-bottom: 20px;
+}
+
+.o_warranty_cards_container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.o_warranty_card {
+    background: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 20px;
+    width: 280px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.o_warranty_card_title {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.o_warranty_card_buttons {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.o_warranty_bar_chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 20px;
+    height: 120px;
+    padding: 10px 0;
+    border-top: 1px solid #eee;
+}
+
+.o_warranty_bar_group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    height: 100%;
+    justify-content: flex-end;
+}
+
+.o_warranty_bar {
+    width: 100%;
+    min-height: 4px;
+    border-radius: 4px 4px 0 0;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.o_warranty_bar:hover {
+    opacity: 0.8;
+}
+
+.o_warranty_bar_previous {
+    background-color: #4e73df;
+}
+
+.o_warranty_bar_current {
+    background-color: #1cc88a;
+}
+
+.o_warranty_bar_label {
+    font-size: 11px;
+    color: #888;
+    margin-top: 5px;
+}

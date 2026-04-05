@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="custom_warranty_claim_management.WarrantyOverview">
+        <div class="o_warranty_overview">
+            <div class="o_warranty_overview_header">
+                <h2>Warranty Claims Overview</h2>
+            </div>
+            <div class="o_warranty_cards_container">
+                <t t-foreach="state.cards" t-as="card" t-key="card.state">
+                    <div class="o_warranty_card">
+                        <div class="o_warranty_card_title">
+                            <span t-esc="card.label"/>
+                        </div>
+                        <div class="o_warranty_card_buttons">
+                            <button
+                                class="btn btn-primary btn-sm"
+                                t-on-click="() => this.openList(card.state, 'previous')"
+                            >
+                                Previous (<t t-esc="card.previous"/>)
+                            </button>
+                            <button
+                                class="btn btn-success btn-sm"
+                                t-on-click="() => this.openList(card.state, 'current')"
+                            >
+                                Current (<t t-esc="card.current"/>)
+                            </button>
+                        </div>
+                        <div class="o_warranty_bar_chart">
+                            <div class="o_warranty_bar_group">
+                                <div
+                                    class="o_warranty_bar o_warranty_bar_previous"
+                                    t-on-click="() => this.openList(card.state, 'previous')"
+                                    t-attf-style="height: {{ getBarHeight(card.previous, getMaxCount(card)) }}%"
+                                    t-att-title="'Previous: ' + card.previous"
+                                />
+                                <span class="o_warranty_bar_label">Previous</span>
+                            </div>
+                            <div class="o_warranty_bar_group">
+                                <div
+                                    class="o_warranty_bar o_warranty_bar_current"
+                                    t-on-click="() => this.openList(card.state, 'current')"
+                                    t-attf-style="height: {{ getBarHeight(card.current, getMaxCount(card)) }}%"
+                                    t-att-title="'Current: ' + card.current"
+                                />
+                                <span class="o_warranty_bar_label">Current</span>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </div>
+        </div>
+    </t>
+</templates>
