@@ -1,7 +1,7 @@
 {
     'name': 'Custom Product',
 
-    'version': '19.0.1.1.2',
+    'version': '19.0.1.1.3',
 
     'category': 'Product',
     'sequence': 1,
@@ -10,7 +10,6 @@
     'author': 'Mir InfoSys',
     'depends': [
         'base', 'mail', 'stock', 'accountant','product','purchase',
-
     ],
     'data': [
         'security/ir.model.access.csv',
