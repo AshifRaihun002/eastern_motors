@@ -38,6 +38,32 @@ class InterCompanyTransfer(models.Model):
     account_move_count = fields.Integer(string="Account Move Count", compute='_compute_account_move_count', store=True)
 
     requisition_id = fields.Many2one('custom.purchase.requisition', string='Requisition No.')
+    intercompany_transit_location_id = fields.Many2one(
+        'stock.location',
+        string='Intercompany Transit Location',
+        domain="[('usage', 'in', ('transit', 'internal')), '|', ('company_id', '=', False), ('company_id', '=', source_company_id)]"
+    )
+
+    def _check_transfer_locations(self):
+        self.ensure_one()
+
+        if not self.source_location_id:
+            raise UserError("Please set Source Location.")
+        if not self.destination_location_id:
+            raise UserError("Please set Destination Location.")
+        if not self.intercompany_transit_location_id:
+            raise UserError("Please set Intercompany Transit Location.")
+
+        transit = self.intercompany_transit_location_id
+
+        if transit.company_id and transit.company_id not in (self.source_company_id, self.destination_company_id):
+            raise UserError("Transit location company does not match source or destination company.")
+
+        if self.source_location_id.company_id != self.source_company_id:
+            raise UserError("Source Location must belong to the Source Company.")
+
+        if self.destination_location_id.company_id != self.destination_company_id:
+            raise UserError("Destination Location must belong to the Destination Company.")
 
     @api.onchange('source_company_id')
     def _onchange_source_company_id(self):
@@ -145,6 +171,7 @@ class InterCompanyTransfer(models.Model):
 
     def button_send(self):
         for record in self:
+            record._check_transfer_locations()
             if record.state != 'confirm':
                 raise UserError("The transfer must be in 'Confirm' state to send a transfer!")
 
@@ -171,7 +198,7 @@ class InterCompanyTransfer(models.Model):
                     'price_unit': source_cost,
                     'product_uom': line.product_uom_id.id,
                     'location_id': self.source_location_id.id,
-                    'location_dest_id': source_adjustment_location.id,
+                    'location_dest_id': record.intercompany_transit_location_id.id,
                     'inter_company_transfer_line_id': line.id,
                     'company_id': self.source_company_id.id
                 }))
@@ -180,20 +207,233 @@ class InterCompanyTransfer(models.Model):
                 'move_ids': move_lines_out,
                 'picking_type_id': picking_type_out.id,
                 'location_id': self.source_location_id.id,
-                'location_dest_id': source_adjustment_location.id,
+                'location_dest_id': record.intercompany_transit_location_id.id,
                 'origin': self.name,
                 'scheduled_date': self.date,
                 'inter_company_transfer_id': self.id,
                 'company_id': self.source_company_id.id
             })
 
-            picking_out.sudo().with_context(skip_backorder=True).action_confirm()
-            self.state = 'sent'
+            picking_out.sudo().with_context(skip_backorder=True).button_validate()
+            # picking_out.button_validate()
+            record.state = 'sent'
+            record._create_source_account_move()
 
+    def _get_intercompany_account(self, company, account_flag):
+        """
+        account_flag:
+            - 'receivable'  => is_inter_company_receivable = True
+            - 'payable'     => is_inter_company_payable = True
+        """
+        domain = [('company_ids', 'in', company.id)]
+
+        if account_flag == 'receivable':
+            domain.append(('is_inter_company_receivable', '=', True))
+        elif account_flag == 'payable':
+            domain.append(('is_inter_company_payable', '=', True))
+        else:
+            raise UserError(_("Invalid account flag passed."))
+
+        account = self.env['account.account'].sudo().search(domain, limit=1)
+        if not account:
+            raise UserError(_(
+                "No inter-company %s account found for company %s."
+            ) % (account_flag, company.display_name))
+        return account
+
+    def _get_stock_valuation_account(self, product, company):
+        """
+        Get stock valuation account from product category.
+        """
+        product = product.with_company(company)
+        categ = product.categ_id
+
+        valuation_account = (
+                categ.property_stock_valuation_account_id
+        )
+
+        if not valuation_account:
+            raise UserError(_(
+                "No stock valuation account found for product category '%s' in company '%s'."
+            ) % (categ.display_name, company.display_name))
+
+        return valuation_account
+
+    def _get_stock_journal(self, company):
+        """
+        Get stock journal. Adjust domain if your setup uses a custom stock journal.
+        """
+        journal = self.env['account.journal'].sudo().search([
+            ('company_id', '=', company.id),
+            ('type', '=', 'general'),
+        ], limit=1)
+
+        if not journal:
+            raise UserError(_("No journal found for company %s.") % company.display_name)
+
+        return journal
+
+    def _prepare_source_move_vals(self):
+        """
+        Source company JE:
+            Dr Inter Company Receivable
+            Cr Stock Valuation
+        """
+        self.ensure_one()
+
+        company = self.source_company_id
+        journal = self._get_stock_journal(company)
+        receivable_account = self._get_intercompany_account(company, 'receivable')
+
+        line_vals = []
+        total_amount = 0.0
+
+        for line in self.transfer_line_ids:
+            if line.quantity <= 0:
+                continue
+
+            product = line.product_id.with_company(company)
+            valuation_account = self._get_stock_valuation_account(product, company)
+            unit_cost = product.standard_price
+            amount = unit_cost * line.quantity
+
+            if not amount:
+                continue
+
+            total_amount += amount
+
+            line_name = '%s - %s' % (self.name, product.display_name)
+
+            # Credit stock valuation
+            line_vals.append((0, 0, {
+                'name': line_name,
+                'account_id': valuation_account.id,
+                'credit': amount,
+                'debit': 0.0,
+                'product_id': product.id,
+                'partner_id': False,
+            }))
+
+        if not line_vals:
+            return False
+
+        # One debit total to inter company receivable
+        line_vals.append((0, 0, {
+            'name': self.name,
+            'account_id': receivable_account.id,
+            'debit': total_amount,
+            'credit': 0.0,
+            'partner_id': False,
+        }))
+
+        return {
+            'move_type': 'entry',
+            'date': self.date or fields.Date.context_today(self),
+            'ref': self.name,
+            'journal_id': journal.id,
+            'company_id': company.id,
+            'inter_company_transfer_id': self.id,
+            'line_ids': line_vals,
+        }
+
+    def _prepare_destination_move_vals(self):
+        """
+        Destination company JE:
+            Dr Stock Valuation
+            Cr Inter Company Payable
+        """
+        self.ensure_one()
+
+        company = self.destination_company_id
+        journal = self._get_stock_journal(company)
+        payable_account = self._get_intercompany_account(company, 'payable')
+
+        line_vals = []
+        total_amount = 0.0
+
+        for line in self.transfer_line_ids:
+            if line.received_quantity <= 0:
+                continue
+
+            source_cost = line.product_id.with_company(self.source_company_id).standard_price
+            product = line.product_id.with_company(company)
+            valuation_account = self._get_stock_valuation_account(product, company)
+            amount = source_cost * line.received_quantity
+
+            if not amount:
+                continue
+
+            total_amount += amount
+
+            line_name = '%s - %s' % (self.name, product.display_name)
+
+            # Debit stock valuation
+            line_vals.append((0, 0, {
+                'name': line_name,
+                'account_id': valuation_account.id,
+                'debit': amount,
+                'credit': 0.0,
+                'product_id': product.id,
+                'partner_id': False,
+            }))
+
+        if not line_vals:
+            return False
+
+        # One credit total to inter company payable
+        line_vals.append((0, 0, {
+            'name': self.name,
+            'account_id': payable_account.id,
+            'debit': 0.0,
+            'credit': total_amount,
+            'partner_id': False,
+        }))
+
+        return {
+            'move_type': 'entry',
+            'date': self.date or fields.Date.context_today(self),
+            'ref': self.name,
+            'journal_id': journal.id,
+            'company_id': company.id,
+            'inter_company_transfer_id': self.id,
+            'line_ids': line_vals,
+        }
+
+    def _create_source_account_move(self):
+        for rec in self:
+            # avoid duplicate entry
+            existing = rec.account_move_ids.filtered(
+                lambda m: m.company_id == rec.source_company_id and m.ref == rec.name
+            )
+            if existing:
+                continue
+
+            vals = rec._prepare_source_move_vals()
+            if not vals:
+                continue
+
+            move = self.env['account.move'].sudo().with_company(rec.source_company_id).create(vals)
+            move.action_post()
+
+    def _create_destination_account_move(self):
+        for rec in self:
+            # avoid duplicate entry
+            existing = rec.account_move_ids.filtered(
+                lambda m: m.company_id == rec.destination_company_id and m.ref == rec.name
+            )
+            if existing:
+                continue
+
+            vals = rec._prepare_destination_move_vals()
+            if not vals:
+                continue
+
+            move = self.env['account.move'].sudo().with_company(rec.destination_company_id).create(vals)
+            move.action_post()
 
     def button_validate_transfer(self):
         self.ensure_one()
-
+        self._check_transfer_locations()
         if not self.transfer_line_ids:
             raise UserError("No product lines to transfer. Please add products to proceed!")
 
@@ -222,7 +462,7 @@ class InterCompanyTransfer(models.Model):
                 'product_uom_qty': line.received_quantity,
                 'product_uom': line.product_uom_id.id,
                 'price_unit': source_cost,
-                'location_id': destination_adjustment_location.id,
+                'location_id': self.intercompany_transit_location_id.id,
                 'location_dest_id': self.destination_location_id.id,
                 'inter_company_transfer_line_id': line.id,
                 'company_id': self.destination_company_id.id
@@ -231,7 +471,7 @@ class InterCompanyTransfer(models.Model):
         picking_in = self.env['stock.picking'].sudo().create({
             'move_ids': move_lines_in,
             'picking_type_id': picking_type_in.id,
-            'location_id': destination_adjustment_location.id,
+            'location_id': self.intercompany_transit_location_id.id,
             'location_dest_id': self.destination_location_id.id,
             'origin': self.name,
             'scheduled_date': self.date,
@@ -240,6 +480,8 @@ class InterCompanyTransfer(models.Model):
         })
 
         picking_in.sudo().with_context(skip_backorder=True).button_validate()
+        # self._create_source_account_move()
+        self._create_destination_account_move()
 
         self.state = 'done'
         # self.sudo().post_ho_journal_entry() if not self.is_fixed_asset_transfer else self.sudo().post_asset_journal_entry()

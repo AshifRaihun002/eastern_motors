@@ -62,3 +62,12 @@ class ProductCustomGroup(models.Model):
     _description = "Product Group"
 
     name = fields.Char(string='Group Name')
+
+class StockQuant(models.Model):
+    _inherit = 'stock.quant'
+
+    min_qty = fields.Float(
+        string='Minimum Qty',
+        related='product_id.reordering_min_qty',
+        store=True
+    )

@@ -29,7 +29,7 @@ class IndentProcess(models.Model):
     issue_date = fields.Date(string='Issue Date', compute='_compute_issue_date', store=True, tracking=True)
     location_id = fields.Many2one(
         'stock.location', string='Destination Location', tracking=True,
-        domain="[('usage', '=', 'internal'), ('company_id', '=', company_id)]"
+        domain="[('usage', '=', 'internal')]"
     )
     warehouse_id = fields.Many2one('stock.warehouse', string="Destination Warehouse", tracking=True)
     # concern_dept_id = fields.Many2one('hr.department', string='Submitted To', tracking=True)
