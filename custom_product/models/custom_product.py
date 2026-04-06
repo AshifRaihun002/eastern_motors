@@ -14,8 +14,8 @@ class ProductTemplate(models.Model):
     hs_code = fields.Char(string="HS Code")
     origen = fields.Many2one('res.country', string='Origen')
 
-    type_id = fields.Many2one("product.custom.type", string="Type")
-    group_id = fields.Many2one("product.custom.group", string="Group")
+    type_id = fields.Many2one("product.custom.type", string="Item Type")
+    group_id = fields.Many2one("product.custom.group", string="Product Group")
 
     def _build_auto_name(self,vals=None):
         vals = vals or {}

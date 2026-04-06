@@ -208,7 +208,7 @@
               sequence="80"/>
 
     <menuitem id="menu_purchase_product_custom_type"
-              name="Product Types"
+              name="Item Types"
               parent="menu_purchase_product_custom_root"
               action="action_product_custom_type"
               sequence="10"/>
