@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<odoo>
+    <menuitem id="custom_target_management_root" name="Target Management" sequence="0"/>
+
+    <menuitem
+            id="custom_target_achievement"
+            name="Target Achievement"
+            parent="custom_target_management_root"
+            sequence="0"
+    />
+
+    <menuitem
+            id="custom_target_achievement_target"
+            name="Targets"
+            parent="custom_target_achievement"
+            action="action_target_management"
+            sequence="0"
+    />
+
+    <menuitem
+            id="fiscal_year_configuration"
+            name="Configuration"
+            parent="custom_target_management_root"
+            sequence="5"
+    />
+
+    <menuitem
+            id="fiscal_year_configuration_years"
+            name="Fiscal Years"
+            parent="fiscal_year_configuration"
+            action="action_fiscal_year_config"
+            sequence="0"
+    />
+</odoo>
