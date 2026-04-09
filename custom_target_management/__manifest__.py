@@ -17,7 +17,6 @@
     "data": [
         "security/ir.model.access.csv",
         "views/curstom_target_views.xml",
-        "views/fiscal_year_config_views.xml",
         "views/menu_views.xml",
     ],
     "installable": True,

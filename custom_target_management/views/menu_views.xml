@@ -29,7 +29,15 @@
             id="fiscal_year_configuration_years"
             name="Fiscal Years"
             parent="fiscal_year_configuration"
-            action="action_fiscal_year_config"
+            action="custom_common_settings.action_fiscal_year_config"
             sequence="0"
+    />
+
+    <menuitem
+            id="inherit_res_country_menu"
+            name="Countries"
+            parent="fiscal_year_configuration"
+            action="custom_common_settings.action_inherit_res_country"
+            sequence="5"
     />
 </odoo>
