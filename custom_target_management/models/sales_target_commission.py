@@ -6,33 +6,107 @@ class SalesTargetCommission(models.Model):
     _name = "sale.target.commission.head"
     _description = "Sales Target & Commission"
 
+    name = fields.Char(string="Name")
+
     period = fields.Many2one(comodel_name='fiscal.year.config', string="Target Period")
     branch_id = fields.Many2one(comodel_name='res.company', string="Branch")
 
     from_period = fields.Date(related='period.from_date', string="From")
     to_period = fields.Date(related='period.to_date', string="To")
 
-    branch_target_qty = fields.Integer(string="Branch Target Quantity")
-    branch_target_value = fields.Float(string="Branch Target Value")
+    branch_target_qty = fields.Integer(string="Branch Target Quantity", compute="_compute_target_qty_value")
+    branch_target_value = fields.Float(string="Branch Target Value", compute="_compute_target_qty_value")
 
-    dealer_target_qty = fields.Integer(string="Dealer Target Quantity")
-    dealer_target_value = fields.Float(string="Dealer Target Value")
+    dealer_target_qty = fields.Integer(string="Dealer Target Quantity", compute="_compute_target_qty_value")
+    dealer_target_value = fields.Float(string="Dealer Target Value", compute="_compute_target_qty_value")
 
-    total_target_qty = fields.Integer(string="Total Target Quantity")
-    total_target_value = fields.Float(string="Total Target Value")
+    total_target_qty = fields.Integer(string="Total Target Quantity", compute="_compute_target_qty_value")
+    total_target_value = fields.Float(string="Total Target Value", compute="_compute_target_qty_value")
 
     line_ids = fields.One2many(comodel_name='sale.target.commission.line', inverse_name='head_id', string="Target Lines")
+
+    @api.onchange('branch_id', 'period')
+    def _onchange_name(self):
+        self.name = f"{self.branch_id.name or ''} {self.period.name or ''}".strip()
+
+    @api.depends("line_ids")
+    def _compute_target_qty_value(self):
+        line_ids = self.line_ids
+        branch_target_qty = 0
+        branch_target_value = 0.0
+        dealer_target_qty = 0
+        dealer_target_value = 0.0
+        for record in line_ids:
+            if record.dealer_branch_id == record.branch_partner_id:
+                branch_target_qty += record.target_qty
+                branch_target_value += record.target_value
+            else:
+                dealer_target_qty += record.target_qty
+                dealer_target_value += record.target_value
+
+        self.branch_target_qty = branch_target_qty
+        self.branch_target_value = branch_target_value
+        self.dealer_target_qty = dealer_target_qty
+        self.dealer_target_value = dealer_target_value
+
+        self.total_target_qty = branch_target_qty + dealer_target_qty
+        self.total_target_value = branch_target_value + dealer_target_value
+
 
     def action_distribute_all_lines(self):
         """Distribute quantity for all lines at once."""
         for record in self:
             record.line_ids.action_distribute_quantity()
 
+    def action_generate_dealer_lines(self):
+        product_group_ids = self.env["product.custom.group"].sudo().search([])
+        dealer_ids = self.branch_id.partner_id.child_ids
+
+        line_vals = []
+        for dealer in dealer_ids:
+            for product_group in product_group_ids:
+                is_exist = self.line_ids.search([("dealer_branch_id", "=", dealer), ("product_group_id", "=", product_group.id), ("head_id", "=", self.id)])
+                if is_exist:
+                    continue
+                line_vals.append({
+                    "head_id": self.id,
+                    "dealer_branch_id": dealer.id,
+                    "salesperson_id": dealer.user_id if dealer.user_id else None,
+                    "product_group_id": product_group.id
+                })
+
+        if line_vals:
+            new_lines = self.env["sale.target.commission.line"].create(line_vals)
+            new_lines.action_distribute_quantity()
+
+
+    def action_generate_branch_lines(self):
+        product_group_ids = self.env["product.custom.group"].sudo().search([])
+        branch_id = self.branch_id.partner_id
+
+        line_vals = []
+
+        for product_group in product_group_ids:
+            is_exist = self.line_ids.search([("product_group_id", "=", product_group.id), ("dealer_branch_id", "=", branch_id.id), ("head_id", "=", self.id)])
+
+            if is_exist:
+                continue
+
+            line_vals.append({
+                "head_id": self.id,
+                "dealer_branch_id": branch_id.id,
+                "product_group_id": product_group.id
+            })
+
+        if line_vals:
+            new_lines = self.env["sale.target.commission.line"].create(line_vals)
+            new_lines.action_distribute_quantity()
+
 class SalesTargetCommissionLine(models.Model):
     _name = "sale.target.commission.line"
     _description = "Sales Target & Commission Line"
 
-    head_id = fields.Many2one(comodel_name='sale.target.commission.head', string="Target")
+    head_id = fields.Many2one(comodel_name='sale.target.commission.head', string="Target", ondelete="cascade")
 
     branch_partner_id = fields.Many2one(
         comodel_name='res.partner',
@@ -43,7 +117,7 @@ class SalesTargetCommissionLine(models.Model):
     dealer_branch_id = fields.Many2one(comodel_name='res.partner', string="Dealer", domain="['|', ('id', '=', branch_partner_id), '&', ('is_company', '=', False), ('customer_rank', '=', 0)]")
     salesperson_id = fields.Many2one(comodel_name='res.users', related='dealer_branch_id.user_id')
 
-    product_group_id = fields.Many2one(comodel_name='product.custom.group', string="Products")
+    product_group_id = fields.Many2one(comodel_name='product.custom.group', string="Product Group")
 
     target_qty = fields.Integer(string="Target Quantity")
     target_value = fields.Float(string="Target Value")
@@ -140,7 +214,7 @@ class SalesTargetCommissionDetail(models.Model):
     _name = "sale.target.commission.detail"
     _description = "Sales Target & Commission Details"
 
-    line_id = fields.Many2one(comodel_name='sale.target.commission.line', string="Target Line")
+    line_id = fields.Many2one(comodel_name='sale.target.commission.line', string="Target Line", ondelete="cascade")
 
     month_year = fields.Date(string="Month/Year")
     target_qty = fields.Integer(string="Target Quantity")

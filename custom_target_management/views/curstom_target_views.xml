@@ -9,17 +9,25 @@
             <form>
                 <sheet>
                     <group>
-                        <group string="Dealer Info">
-                            <field name="dealer_branch_id"/>
-                            <field name="salesperson_id"/>
-                            <field name="product_group_id"/>
+                        <group string="Dealer Info" readonly="1">
+                            <field name="dealer_branch_id" readonly="1"/>
+                            <field name="salesperson_id" readonly="1"/>
+                            <field name="product_group_id" readonly="1"/>
                         </group>
                         <group string="Targets">
                             <field name="target_qty"/>
                             <field name="target_value"/>
                         </group>
                     </group>
-
+                    <group>
+                        <div class="d-flex justify-content-end">
+                            <!-- Distribute button inside the line form -->
+                            <button string="Distribute Quantity"
+                                    name="action_distribute_quantity"
+                                    type="object"
+                                    class="btn-primary"/>
+                        </div>
+                    </group>
                     <!-- Detail lines shown here -->
                     <notebook>
                         <page string="Monthly Details">
@@ -33,14 +41,6 @@
                             </field>
                         </page>
                     </notebook>
-
-                    <!-- Distribute button inside the line form -->
-                    <footer>
-                        <button string="Distribute Quantity"
-                                name="action_distribute_quantity"
-                                type="object"
-                                class="btn-primary"/>
-                    </footer>
                 </sheet>
             </form>
         </field>
@@ -52,6 +52,7 @@
         <field name="model">sale.target.commission.head</field>
         <field name="arch" type="xml">
             <list string="Targets">
+                <field name="name"/>
                 <field name="branch_id"/>
                 <field name="period"/>
                 <field name="from_period"/>
@@ -67,19 +68,17 @@
         <field name="arch" type="xml">
             <form string="Target Information">
                 <header>
-                    <button string="Distribute All"
-                            name="action_distribute_all_lines"
-                            type="object"
-                            class="btn-primary"/>
+
                 </header>
 
                 <sheet>
                     <group>
                         <group>
+                            <field name="name"/>
                             <field name="period"/>
-                            <field name="branch_id"/>
                             <field name="from_period"/>
                             <field name="to_period"/>
+                            <field name="branch_id"/>
                         </group>
                         <group>
                             <field name="branch_target_qty"/>
@@ -89,21 +88,40 @@
                             <field name="total_target_qty"/>
                             <field name="total_target_value"/>
                         </group>
-
-                        <field name="line_ids">
-                            <list editable="bottom">
-                                <field name="dealer_branch_id"/>
-                                <field name="salesperson_id"/>
-                                <field name="product_group_id"/>
-                                <field name="target_qty"/>
-                                <field name="target_value"/>
-                                <button string="View Details"
-                                        name="action_open_detail_lines"
-                                        type="object"
-                                        icon="fa-list"/>
-                            </list>
-                        </field>
                     </group>
+                    <group>
+                        <div class="d-flex justify-content-end">
+                            <button string="Distribute All"
+                                    name="action_distribute_all_lines"
+                                    type="object"
+                                    class="btn-primary p-2 m-1"/>
+                            <button string="Generate Dealer"
+                                    name="action_generate_dealer_lines"
+                                    type="object"
+                                    class="btn-primary p-2 m-1"/>
+                            <button string="Generate Branch"
+                                    name="action_generate_branch_lines"
+                                    type="object"
+                                    class="btn-primary p-2 m-1"/>
+                        </div>
+                    </group>
+                    <notebook>
+                        <page string="Targets">
+                            <field name="line_ids">
+                                <list editable="bottom">
+                                    <field name="dealer_branch_id"/>
+                                    <field name="salesperson_id"/>
+                                    <field name="product_group_id"/>
+                                    <field name="target_qty"/>
+                                    <field name="target_value"/>
+                                    <button string="View Details"
+                                            name="action_open_detail_lines"
+                                            type="object"
+                                            icon="fa-list"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
                 </sheet>
             </form>
         </field>
