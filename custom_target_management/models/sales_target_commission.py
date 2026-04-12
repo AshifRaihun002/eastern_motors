@@ -102,6 +102,24 @@ class SalesTargetCommission(models.Model):
             new_lines = self.env["sale.target.commission.line"].create(line_vals)
             new_lines.action_distribute_quantity()
 
+
+    def open_set_target_wizard(self):
+        self.ensure_one()
+        dealer_ids = self.branch_id.partner_id.child_ids
+        return {
+            "name": "Set Targets",
+            "type": "ir.actions.act_window",
+            "res_model": "set.target.wizard",
+            "view_mode": "form",
+            "target": "new",
+            "context": {
+                "default_dealer_ids": dealer_ids.ids,
+                "default_branch_partner_id": self.branch_id.partner_id.id,
+                "active_id": self.id,
+                "active_model": self._name,
+            }
+        }
+
 class SalesTargetCommissionLine(models.Model):
     _name = "sale.target.commission.line"
     _description = "Sales Target & Commission Line"

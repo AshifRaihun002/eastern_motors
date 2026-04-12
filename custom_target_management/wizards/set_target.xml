@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="set_target_wizard_form" model="ir.ui.view">
+        <field name="name">set.target.wizard.form</field>
+        <field name="model">set.target.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Set Target">
+                <sheet>
+                    <group>
+                        <field name="target_type" required="1"/>
+                        <field name="dealer_id" invisible="target_type not in ['dealer']"/>
+
+                        <field name="line_ids">
+                            <list editable="bottom">
+                                <field name="product_group_id" required="1"/>
+                                <field name="target_qty"/>
+                                <field name="target_value"/>
+                            </list>
+                        </field>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="set_target"
+                            string="Set"
+                            type="object"
+                            class="btn-primary"
+                    />
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+
+    <record id="action_set_target_wizard" model="ir.actions.act_window">
+        <field name="name">Set Target Wizard</field>
+        <field name="res_model">set.target.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="set_target_wizard_form"/>
+        <field name="target">new</field>
+    </record>
+</odoo>

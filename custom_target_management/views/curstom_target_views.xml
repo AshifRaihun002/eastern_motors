@@ -91,16 +91,20 @@
                     </group>
                     <group>
                         <div class="d-flex justify-content-end">
-                            <button string="Distribute All"
-                                    name="action_distribute_all_lines"
-                                    type="object"
-                                    class="btn-primary p-2 m-1"/>
                             <button string="Generate Dealer"
                                     name="action_generate_dealer_lines"
                                     type="object"
                                     class="btn-primary p-2 m-1"/>
                             <button string="Generate Branch"
                                     name="action_generate_branch_lines"
+                                    type="object"
+                                    class="btn-primary p-2 m-1"/>
+                            <button string="Set Target"
+                                    name="open_set_target_wizard"
+                                    type="object"
+                                    class="btn-primary p-2 m-1"/>
+                            <button string="Distribute All"
+                                    name="action_distribute_all_lines"
                                     type="object"
                                     class="btn-primary p-2 m-1"/>
                         </div>

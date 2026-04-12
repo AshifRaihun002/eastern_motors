@@ -17,6 +17,7 @@
     "data": [
         "security/ir.model.access.csv",
         "views/curstom_target_views.xml",
+        "wizards/set_target.xml",
         "views/menu_views.xml",
     ],
     "installable": True,
