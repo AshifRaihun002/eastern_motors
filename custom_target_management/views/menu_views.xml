@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<odoo>
+    <menuitem id="custom_target_management_root" name="Target Management" sequence="0"/>
+
+    <menuitem
+            id="custom_target_achievement"
+            name="Target Achievement"
+            parent="custom_target_management_root"
+            sequence="0"
+    />
+
+    <menuitem
+            id="custom_target_achievement_target"
+            name="Targets"
+            parent="custom_target_achievement"
+            action="action_target_management"
+            sequence="0"
+    />
+
+    <menuitem
+            id="custom_sales_commission_policy"
+            name="Sales Commission Policy"
+            parent="custom_target_achievement"
+            action="action_custom_sales_commission_policy_management"
+            sequence="0"
+    />
+
+    <menuitem
+            id="fiscal_year_configuration"
+            name="Configuration"
+            parent="custom_target_management_root"
+            sequence="5"
+    />
+
+    <menuitem
+            id="fiscal_year_configuration_years"
+            name="Fiscal Years"
+            parent="fiscal_year_configuration"
+            action="custom_common_settings.action_fiscal_year_config"
+            sequence="0"
+    />
+
+    <menuitem
+            id="inherit_res_country_menu"
+            name="Countries"
+            parent="fiscal_year_configuration"
+            action="custom_common_settings.action_inherit_res_country"
+            sequence="5"
+    />
+</odoo>

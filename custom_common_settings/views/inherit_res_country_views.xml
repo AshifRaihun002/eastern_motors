@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <!--List View-->
+    <record model="ir.ui.view" id="inherit_res_country_list">
+        <field name="name">inherit.res.country.list</field>
+        <field name="model">res.country</field>
+        <field name="arch" type="xml">
+            <list string="Countries">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="custom_country_code"/>
+            </list>
+        </field>
+    </record>
+
+    <!--Form View-->
+    <record model="ir.ui.view" id="inherit_res_country_form">
+        <field name="name">inherit.res.country.form</field>
+        <field name="model">res.country</field>
+        <field name="arch" type="xml">
+            <form string="Fiscal Year">
+                <sheet>
+                    <group>
+                        <field name="name" readonly="1"/>
+                        <field name="code" string="Default Code" readonly="1"/>
+                        <field name="custom_country_code"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!--Main Action-->
+    <record id="action_inherit_res_country" model="ir.actions.act_window">
+        <field name="name">Inherit res_country country_code</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">res.country</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create Country
+            </p>
+        </field>
+    </record>
+</odoo>

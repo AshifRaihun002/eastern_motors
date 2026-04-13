@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <!--Target Lines Form View-->
+    <record id="view_custom_sale_target_line_form" model="ir.ui.view">
+        <field name="name">custom.sale.target.line.form</field>
+        <field name="model">custom.sale.target.line</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group string="Dealer Info" readonly="1">
+                            <field name="dealer_branch_id" readonly="1"/>
+                            <field name="salesperson_id" readonly="1"/>
+                            <field name="product_group_id" readonly="1"/>
+                        </group>
+                        <group string="Targets">
+                            <field name="target_qty"/>
+                            <field name="target_value"/>
+                        </group>
+                    </group>
+                    <group>
+                        <div class="d-flex justify-content-end">
+                            <!-- Distribute button inside the line form -->
+                            <button string="Distribute Quantity"
+                                    name="action_distribute_quantity"
+                                    type="object"
+                                    class="btn-primary"/>
+                        </div>
+                    </group>
+                    <!-- Detail lines shown here -->
+                    <notebook>
+                        <page string="Monthly Details">
+                            <field name="detail_line_ids">
+                                <list editable="bottom">
+                                    <field name="date_from" readonly="1"/>
+                                    <field name="date_to" readonly="1"/>
+                                    <field name="target_qty"/>
+                                    <field name="target_value"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!--List View-->
+    <record model="ir.ui.view" id="target_management_list">
+        <field name="name">target.management.list</field>
+        <field name="model">custom.sale.target.head</field>
+        <field name="arch" type="xml">
+            <list string="Targets">
+                <field name="name"/>
+                <field name="branch_id"/>
+                <field name="period"/>
+                <field name="from_period"/>
+                <field name="to_period"/>
+            </list>
+        </field>
+    </record>
+
+    <!--Form View-->
+    <record model="ir.ui.view" id="target_management_form">
+        <field name="name">target.management.form</field>
+        <field name="model">custom.sale.target.head</field>
+        <field name="arch" type="xml">
+            <form string="Target Information">
+                <header>
+
+                </header>
+
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="branch_id"/>
+                            <field name="period"/>
+                            <field name="from_period"/>
+                            <field name="to_period"/>
+                            <field name="commission_policy"/>
+                        </group>1
+                        <group>
+                            <field name="branch_target_qty"/>
+                            <field name="branch_target_value"/>
+                            <field name="dealer_target_qty"/>
+                            <field name="dealer_target_value"/>
+                            <field name="total_target_qty"/>
+                            <field name="total_target_value"/>
+                        </group>
+                    </group>
+                    <group>
+                        <div class="d-flex justify-content-end">
+                            <button string="Generate Dealer"
+                                    name="action_generate_dealer_lines"
+                                    type="object"
+                                    class="btn-primary p-2 m-1"/>
+                            <button string="Generate Branch"
+                                    name="action_generate_branch_lines"
+                                    type="object"
+                                    class="btn-primary p-2 m-1"/>
+                            <button string="Set Target"
+                                    name="open_set_target_wizard"
+                                    type="object"
+                                    class="btn-primary p-2 m-1"/>
+                            <button string="Distribute All"
+                                    name="action_distribute_all_lines"
+                                    type="object"
+                                    class="btn-primary p-2 m-1"/>
+                        </div>
+                    </group>
+                    <notebook>
+                        <page string="Targets">
+                            <field name="line_ids">
+                                <list editable="bottom">
+                                    <field name="dealer_branch_id"/>
+                                    <field name="salesperson_id"/>
+                                    <field name="product_group_id"/>
+                                    <field name="target_qty"/>
+                                    <field name="target_value"/>
+                                    <button string="View Details"
+                                            name="action_open_detail_lines"
+                                            type="object"
+                                            icon="fa-list"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+
+    <!--Main Action-->
+    <record id="action_target_management" model="ir.actions.act_window">
+        <field name="name">Target Management</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">custom.sale.target.head</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new warranty claim
+            </p>
+        </field>
+    </record>
+</odoo>

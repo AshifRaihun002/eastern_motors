@@ -1,0 +1,27 @@
+{
+    "name": "Custom Target Management",
+    "version": "1.0.0",
+    "category": "Custom",
+    "author": "Mirinfo Systems Limited",
+    "company": "Mirinfo Systems Limited",
+    "maintainer": "Mirinfo Systems Limited",
+    "website": "http://www.mirinfo-systems.com",
+    "license": "LGPL-3",
+    "sequence": 5,
+    "summary": "Custom Target Management",
+    "depends": [
+        "base",
+        "sale",
+        "custom_product",
+    ],
+    "data": [
+        "security/ir.model.access.csv",
+        "views/custom_target_views.xml",
+        "views/custom_sales_commission_policy_views.xml",
+        "wizards/set_target.xml",
+        "views/menu_views.xml",
+    ],
+    "installable": True,
+    "application": True,
+    "auto_install": False,
+}

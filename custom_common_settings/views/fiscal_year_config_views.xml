@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <!--List View-->
+    <record model="ir.ui.view" id="fiscal_year_config_list">
+        <field name="name">fiscal.year.config.list</field>
+        <field name="model">fiscal.year.config</field>
+        <field name="arch" type="xml">
+            <list string="Fiscal Year">
+                <field name="name"/>
+                <field name="from_date"/>
+                <field name="to_date"/>
+            </list>
+        </field>
+    </record>
+
+    <!--Form View-->
+    <record model="ir.ui.view" id="fiscal_year_config_form">
+        <field name="name">fiscal.year.config.form</field>
+        <field name="model">fiscal.year.config</field>
+        <field name="arch" type="xml">
+            <form string="Fiscal Year">
+                <sheet>
+                    <group>
+                        <field name="name" required="1"/>
+                        <field name="from_date" required="1"/>
+                        <field name="to_date" required="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!--Main Action-->
+    <record id="action_fiscal_year_config" model="ir.actions.act_window">
+        <field name="name">Fiscal Year Configuration</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">fiscal.year.config</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new fiscal year
+            </p>
+        </field>
+    </record>
+</odoo>
