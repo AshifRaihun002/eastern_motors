@@ -2,9 +2,9 @@ import calendar
 from dateutil.relativedelta import relativedelta
 from odoo import api, fields, models
 
-class SalesTargetCommission(models.Model):
-    _name = "sale.target.commission.head"
-    _description = "Sales Target & Commission"
+class CustomSalesTarget(models.Model):
+    _name = "custom.sale.target.head"
+    _description = "Custom Sales Target"
 
     name = fields.Char(string="Name")
 
@@ -23,7 +23,9 @@ class SalesTargetCommission(models.Model):
     total_target_qty = fields.Integer(string="Total Target Quantity", compute="_compute_target_qty_value")
     total_target_value = fields.Float(string="Total Target Value", compute="_compute_target_qty_value")
 
-    line_ids = fields.One2many(comodel_name='sale.target.commission.line', inverse_name='head_id', string="Target Lines")
+    commission_policy = fields.Many2one("custom.sales.commission.policy.head", string="Commission Policy")
+
+    line_ids = fields.One2many(comodel_name='custom.sale.target.line', inverse_name='head_id', string="Target Lines")
 
     @api.onchange('branch_id', 'period')
     def _onchange_name(self):
@@ -76,7 +78,7 @@ class SalesTargetCommission(models.Model):
                 })
 
         if line_vals:
-            new_lines = self.env["sale.target.commission.line"].create(line_vals)
+            new_lines = self.env["custom.sale.target.line"].create(line_vals)
             new_lines.action_distribute_quantity()
 
 
@@ -99,7 +101,7 @@ class SalesTargetCommission(models.Model):
             })
 
         if line_vals:
-            new_lines = self.env["sale.target.commission.line"].create(line_vals)
+            new_lines = self.env["custom.sale.target.line"].create(line_vals)
             new_lines.action_distribute_quantity()
 
 
@@ -120,11 +122,11 @@ class SalesTargetCommission(models.Model):
             }
         }
 
-class SalesTargetCommissionLine(models.Model):
-    _name = "sale.target.commission.line"
-    _description = "Sales Target & Commission Line"
+class CustomSalesTargetLine(models.Model):
+    _name = "custom.sale.target.line"
+    _description = "Sales Target Line"
 
-    head_id = fields.Many2one(comodel_name='sale.target.commission.head', string="Target", ondelete="cascade")
+    head_id = fields.Many2one(comodel_name='custom.sale.target.head', string="Target", ondelete="cascade")
 
     branch_partner_id = fields.Many2one(
         comodel_name='res.partner',
@@ -140,7 +142,7 @@ class SalesTargetCommissionLine(models.Model):
     target_qty = fields.Integer(string="Target Quantity")
     target_value = fields.Float(string="Target Value")
 
-    detail_line_ids = fields.One2many("sale.target.commission.detail", inverse_name='line_id', string="Target Line Details")
+    detail_line_ids = fields.One2many("custom.sale.target.detail", inverse_name='line_id', string="Target Line Details")
 
     def _generate_month_segments(self):
         """Generate date segments from head's from_period to to_period."""
@@ -190,7 +192,7 @@ class SalesTargetCommissionLine(models.Model):
                 'target_value': 0.0,
             })
         if detail_vals:
-            self.env['sale.target.commission.detail'].create(detail_vals)
+            self.env['custom.sale.target.detail'].create(detail_vals)
 
     def action_distribute_quantity(self):
         """Evenly distribute target_qty and target_value across detail lines."""
@@ -219,20 +221,20 @@ class SalesTargetCommissionLine(models.Model):
         return {
             'name': f'Details - {self.dealer_branch_id.name} / {self.product_group_id.name}',
             'type': 'ir.actions.act_window',
-            'res_model': 'sale.target.commission.line',
+            'res_model': 'custom.sale.target.line',
             'view_mode': 'form',
             'res_id': self.id,
             'views': [
-                (self.env.ref('custom_target_management.view_sale_target_commission_line_form').id, 'form'),
+                (self.env.ref('custom_target_management.view_custom_sale_target_line_form').id, 'form'),
             ],
         }
 
 
-class SalesTargetCommissionDetail(models.Model):
-    _name = "sale.target.commission.detail"
-    _description = "Sales Target & Commission Details"
+class CustomSalesTargetDetail(models.Model):
+    _name = "custom.sale.target.detail"
+    _description = "Sales Target Details"
 
-    line_id = fields.Many2one(comodel_name='sale.target.commission.line', string="Target Line", ondelete="cascade")
+    line_id = fields.Many2one(comodel_name='custom.sale.target.line', string="Target Line", ondelete="cascade")
 
     month_year = fields.Date(string="Month/Year")
     target_qty = fields.Integer(string="Target Quantity")

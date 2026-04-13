@@ -16,7 +16,8 @@
     ],
     "data": [
         "security/ir.model.access.csv",
-        "views/curstom_target_views.xml",
+        "views/custom_target_views.xml",
+        "views/custom_sales_commission_policy_views.xml",
         "wizards/set_target.xml",
         "views/menu_views.xml",
     ],

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <!--List View-->
+    <record model="ir.ui.view" id="custom_sales_commission_policy_management_list">
+        <field name="name">sales.commission.policy.management.list</field>
+        <field name="model">custom.sales.commission.policy.head</field>
+        <field name="arch" type="xml">
+            <list string="Commission Policy">
+                <field name="name"/>
+                <field name="policy_type"/>
+            </list>
+        </field>
+    </record>
+
+    <!--Form View-->
+    <record model="ir.ui.view" id="custom_sales_commission_policy_management_form">
+        <field name="name">sales.commission.policy.management.form</field>
+        <field name="model">custom.sales.commission.policy.head</field>
+        <field name="arch" type="xml">
+            <form string="Policy Information">
+                <header>
+
+                </header>
+
+                <sheet>
+                    <group>
+                        <field name="name" required="1"/>
+                        <field name="policy_type" required="1"/>
+                    </group>
+                    <notebook>
+                        <page string="Quantity Based Policy" invisible="policy_type in ['on_amount']">
+                            <field name="qty_lines">
+                                <list string="Policy" editable="bottom">
+                                    <field name="sequence" widget="handle" required="1"/>
+                                    <field name="from_qty" required="1"/>
+                                    <field name="to_qty" required="1"/>
+                                    <field name="commission_percentage" required="1"/>
+                                </list>
+                            </field>
+                        </page>
+
+                        <page string="Amount Based Policy" invisible="policy_type in ['on_qty']">
+                            <field name="amount_lines">
+                                <list string="Policy" editable="bottom">
+                                    <field name="sequence" widget="handle" required="1"/>
+                                    <field name="from_amount" required="1"/>
+                                    <field name="to_amount" required="1"/>
+                                    <field name="commission_percentage" required="1"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!--Main Action-->
+    <record id="action_custom_sales_commission_policy_management" model="ir.actions.act_window">
+        <field name="name">Sales Commission Policy</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">custom.sales.commission.policy.head</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new Sales Commission Policy
+            </p>
+        </field>
+    </record>
+</odoo>

@@ -19,6 +19,14 @@
     />
 
     <menuitem
+            id="custom_sales_commission_policy"
+            name="Sales Commission Policy"
+            parent="custom_target_achievement"
+            action="action_custom_sales_commission_policy_management"
+            sequence="0"
+    />
+
+    <menuitem
             id="fiscal_year_configuration"
             name="Configuration"
             parent="custom_target_management_root"

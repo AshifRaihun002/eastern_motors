@@ -2,9 +2,9 @@
 <odoo>
 
     <!--Target Lines Form View-->
-    <record id="view_sale_target_commission_line_form" model="ir.ui.view">
-        <field name="name">sale.target.commission.line.form</field>
-        <field name="model">sale.target.commission.line</field>
+    <record id="view_custom_sale_target_line_form" model="ir.ui.view">
+        <field name="name">custom.sale.target.line.form</field>
+        <field name="model">custom.sale.target.line</field>
         <field name="arch" type="xml">
             <form>
                 <sheet>
@@ -49,7 +49,7 @@
     <!--List View-->
     <record model="ir.ui.view" id="target_management_list">
         <field name="name">target.management.list</field>
-        <field name="model">sale.target.commission.head</field>
+        <field name="model">custom.sale.target.head</field>
         <field name="arch" type="xml">
             <list string="Targets">
                 <field name="name"/>
@@ -64,7 +64,7 @@
     <!--Form View-->
     <record model="ir.ui.view" id="target_management_form">
         <field name="name">target.management.form</field>
-        <field name="model">sale.target.commission.head</field>
+        <field name="model">custom.sale.target.head</field>
         <field name="arch" type="xml">
             <form string="Target Information">
                 <header>
@@ -75,11 +75,12 @@
                     <group>
                         <group>
                             <field name="name"/>
+                            <field name="branch_id"/>
                             <field name="period"/>
                             <field name="from_period"/>
                             <field name="to_period"/>
-                            <field name="branch_id"/>
-                        </group>
+                            <field name="commission_policy"/>
+                        </group>1
                         <group>
                             <field name="branch_target_qty"/>
                             <field name="branch_target_value"/>
@@ -136,7 +137,7 @@
     <record id="action_target_management" model="ir.actions.act_window">
         <field name="name">Target Management</field>
         <field name="type">ir.actions.act_window</field>
-        <field name="res_model">sale.target.commission.head</field>
+        <field name="res_model">custom.sale.target.head</field>
         <field name="view_mode">list,form</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">

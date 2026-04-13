@@ -20,7 +20,7 @@ class SetTarget(models.TransientModel):
     def set_target(self):
         self.ensure_one()
         target_id = self.env.context.get("active_id")
-        target = self.env["sale.target.commission.head"].browse(target_id)
+        target = self.env["custom.sale.target.head"].browse(target_id)
 
         if not target:
             raise ValidationError("No Target Record Found")
