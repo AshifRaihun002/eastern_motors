@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+
+security_access_for_sale_approval,security_access_for_sale_approval,custom_sales_order.model_so_approval_history,base.group_user,1,1,1,1
+security_access_for_wizard_user,security_access_for_wizard_user,custom_sales_order.model_sent_back_wizard_so,base.group_user,1,1,1,1
