@@ -879,3 +879,4 @@ class PurchaseRequisitionLine(models.Model):
     def _compute_po_remaining_qty(self):
         for rec in self:
             rec.po_remaining_qty = rec.product_uom_qty - rec.po_quantity
+
