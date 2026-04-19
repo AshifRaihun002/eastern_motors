@@ -32,9 +32,8 @@
                     <notebook>
                         <page string="Monthly Details">
                             <field name="detail_line_ids">
-                                <list editable="bottom">
-                                    <field name="date_from" readonly="1"/>
-                                    <field name="date_to" readonly="1"/>
+                                <list create="false" delete="false" editable="bottom">
+                                    <field name="date_str"/>
                                     <field name="target_qty"/>
                                     <field name="target_value"/>
                                 </list>
@@ -68,19 +67,34 @@
         <field name="arch" type="xml">
             <form string="Target Information">
                 <header>
+                    <button string="Generate Report"
+                            name="open_target_form_report_wizard"
+                            type="object"
+                            class="btn-primary p-2 m-1"/>
+                    <button string="Confirm Target"
+                            name="confirm_target"
+                            type="object"
+                            class="btn-primary p-2 m-1"
+                            invisible="status not in ['draft']"/>
+                    <button string="Approve Target"
+                            name="approve_target"
+                            type="object"
+                            class="btn-primary p-2 m-1"
+                            invisible="status not in ['confirmed']"/>
 
+                    <field name="status" widget="statusbar"/>
                 </header>
 
                 <sheet>
                     <group>
                         <group>
                             <field name="name"/>
-                            <field name="branch_id"/>
-                            <field name="period"/>
+                            <field name="branch_id" required="1"/>
+                            <field name="period" required="1"/>
                             <field name="from_period"/>
                             <field name="to_period"/>
                             <field name="commission_policy"/>
-                        </group>1
+                        </group>
                         <group>
                             <field name="branch_target_qty"/>
                             <field name="branch_target_value"/>

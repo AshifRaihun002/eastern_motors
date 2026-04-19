@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record id="target_report_wizard_form" model="ir.ui.view">
+        <field name="name">target.report.wizard.form</field>
+        <field name="model">target.form.report.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Target Report">
+                <sheet>
+                    <group>
+                        <field name="report_type"/>
+                        <field name="period_id" required="1"/>
+                        <field name="month" invisible="report_type not in ['month'] or period_id == False" required="1"/>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="action_generate_fiscal_report"
+                            string="Generate Report(Excel)"
+                            type="object"
+                            class="btn-primary"
+                    />
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_target_report_wizard" model="ir.actions.act_window">
+        <field name="name">Target Form Report Wizard</field>
+        <field name="res_model">target.form.report.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="target_report_wizard_form"/>
+        <field name="target">new</field>
+    </record>
+</odoo>

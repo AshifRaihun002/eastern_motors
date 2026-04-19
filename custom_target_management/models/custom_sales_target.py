@@ -1,12 +1,19 @@
 import calendar
 from dateutil.relativedelta import relativedelta
 from odoo import api, fields, models
+from odoo.exceptions import UserError, ValidationError
 
 class CustomSalesTarget(models.Model):
     _name = "custom.sale.target.head"
     _description = "Custom Sales Target"
 
     name = fields.Char(string="Name")
+
+    status = fields.Selection([
+        ('draft', 'Draft'),
+        ('confirmed', 'Confirmed'),
+        ('approved', 'Approved'),
+    ], string="Status", default='draft')
 
     period = fields.Many2one(comodel_name='fiscal.year.config', string="Target Period")
     branch_id = fields.Many2one(comodel_name='res.company', string="Branch")
@@ -26,6 +33,19 @@ class CustomSalesTarget(models.Model):
     commission_policy = fields.Many2one("custom.sales.commission.policy.head", string="Commission Policy")
 
     line_ids = fields.One2many(comodel_name='custom.sale.target.line', inverse_name='head_id', string="Target Lines")
+
+    def confirm_target(self):
+        for record in self:
+            if record.status == 'draft':
+                if self.line_ids:
+                    record.status = 'confirmed'
+                else:
+                    raise UserError("No Target Lines Found")
+
+    def approve_target(self):
+        for record in self:
+            if record.status == 'confirmed':
+                record.status = 'approved'
 
     @api.onchange('branch_id', 'period')
     def _onchange_name(self):
@@ -121,6 +141,31 @@ class CustomSalesTarget(models.Model):
                 "active_model": self._name,
             }
         }
+
+    #   Wizard for report download(excel)
+    def open_target_form_report_wizard(self):
+        wizard = self.env['target.form.report.wizard'].with_context(
+            active_id = self.id,
+            active_model = self._name,
+            line_model = "custom.sale.target.line",
+            default_period_id = self.period.id,
+        ).create({})
+
+        return wizard.action_generate_excel()
+        # return {
+        #     "name": "Target Form Report(Excel)",
+        #     "type": "ir.actions.act_window",
+        #     "res_model": "target.form.report.wizard",
+        #     "view_mode": "form",
+        #     "target": "new",
+        #     "context": {
+        #         "active_id": self.id,
+        #         "active_model": self._name,
+        #         "line_model": "custom.sale.target.line",
+        #         "default_period_id": self.period.id
+        #     }
+        # }
+
 
 class CustomSalesTargetLine(models.Model):
     _name = "custom.sale.target.line"
@@ -233,6 +278,7 @@ class CustomSalesTargetLine(models.Model):
 class CustomSalesTargetDetail(models.Model):
     _name = "custom.sale.target.detail"
     _description = "Sales Target Details"
+    _order = "date_from"
 
     line_id = fields.Many2one(comodel_name='custom.sale.target.line', string="Target Line", ondelete="cascade")
 
@@ -242,6 +288,13 @@ class CustomSalesTargetDetail(models.Model):
 
     date_from = fields.Date(string="From Date")
     date_to = fields.Date(string="To Date")
+    date_str = fields.Char(string="Date", compute="_compute_date_str", store=True)
+
+    @api.depends('date_from', 'date_to')
+    def _compute_date_str(self):
+        for record in self:
+            if record.date_from and record.date_to:
+                record.date_str = f'{record.date_from.strftime('%b')}-{record.date_to.strftime('%Y')}'
 
 
 

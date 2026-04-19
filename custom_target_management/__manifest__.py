@@ -15,10 +15,12 @@
         "custom_product",
     ],
     "data": [
+        "security/target_securtiy.xml",
         "security/ir.model.access.csv",
         "views/custom_target_views.xml",
         "views/custom_sales_commission_policy_views.xml",
         "wizards/set_target.xml",
+        "wizards/target_report_wizard.xml",
         "views/menu_views.xml",
     ],
     "installable": True,

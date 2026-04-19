@@ -23,7 +23,15 @@
             name="Sales Commission Policy"
             parent="custom_target_achievement"
             action="action_custom_sales_commission_policy_management"
-            sequence="0"
+            sequence="5"
+    />
+
+    <menuitem
+            id="custom_sales_target_form_report"
+            name="Sales Target Report"
+            parent="custom_target_achievement"
+            action="action_target_report_wizard"
+            sequence="10"
     />
 
     <menuitem
