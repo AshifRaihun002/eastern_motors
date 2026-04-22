@@ -179,7 +179,7 @@ class CustomSalesTargetLine(models.Model):
         store=False,
     )
 
-    dealer_branch_id = fields.Many2one(comodel_name='res.partner', string="Dealer", domain="['|', ('id', '=', branch_partner_id), '&', ('is_company', '=', False), ('customer_rank', '=', 0)]")
+    dealer_branch_id = fields.Many2one(comodel_name='res.partner', string="Dealer", domain="['|', ('id', '=', branch_partner_id), '&', ('is_company', '=', False), ('customer_type', '=', 'dealer')]")
     salesperson_id = fields.Many2one(comodel_name='res.users', related='dealer_branch_id.user_id')
 
     product_group_id = fields.Many2one(comodel_name='product.custom.group', string="Product Group")

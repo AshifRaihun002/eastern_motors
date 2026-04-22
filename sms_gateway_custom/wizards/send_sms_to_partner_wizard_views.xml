@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <!--  Send SMS to Partner Form View  -->
+    <record id="view_send_sms_to_partner_wizard_form" model="ir.ui.view">
+        <field name="name">send.sms.to.partner.wizard.form</field>
+        <field name="model">send.sms.to.partner.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Send SMS Text Message">
+                <sheet>
+                    <group>
+                        <field name="body" required="1"/>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="action_send_sms" class="btn-primary" type="object" string="send"/>
+                    <button string="Close" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

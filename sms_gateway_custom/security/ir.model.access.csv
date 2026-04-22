@@ -1,0 +1,10 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+sms_gateway_custom.access_sms_template_custom,access_sms_template_custom,sms_gateway_custom.model_sms_template_custom,base.group_user,1,1,1,1
+
+sms_gateway_custom.access_send_sms_to_partner_wizard,access_send_sms_to_partner_wizard,sms_gateway_custom.model_send_sms_to_partner_wizard,base.group_user,1,1,1,1
+
+sms_gateway_custom.access_sms_mail_sender,access_sms_mail_sender,sms_gateway_custom.model_sms_mail_sender,base.group_user,1,1,1,1
+
+sms_gateway_custom.access_sms_mail_server,access_sms_mail_server,sms_gateway_custom.model_sms_mail_server,base.group_user,1,1,1,1
+
+sms_gateway_custom.access_sms_outbox_details,access_sms_outbox_details,sms_gateway_custom.model_sms_outbox_details,base.group_user,1,1,1,1

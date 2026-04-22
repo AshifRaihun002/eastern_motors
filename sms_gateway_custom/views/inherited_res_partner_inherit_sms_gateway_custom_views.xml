@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="inherited_res_partner_view_form_sms_gateway_custom" model="ir.ui.view">
+        <field name="name">inherited.res.partner.view.form.sms.gateway.custom</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="sms.res_partner_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='phone']" position="attributes">
+                <attribute name="options">{}</attribute>
+            </xpath>
+            <xpath expr="//field[@name='phone']" position="after">
+                <div class="o_row">
+                    <button name="send_sms_partner" string="SMS" type="object" class="btn btn-link fa fa-mobile"/>
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>

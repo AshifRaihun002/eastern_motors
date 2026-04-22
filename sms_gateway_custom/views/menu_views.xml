@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <menuitem id="sms_gateway_custom_root" name="SMS" sequence="40"/>
+
+    <menuitem
+            id="custom_sms_operations_menu"
+            name="Operations"
+            parent="sms_gateway_custom_root"
+            sequence="0"
+    />
+
+    <menuitem
+            id="custom_sms_template_menu"
+            name="SMS Template"
+            parent="custom_sms_operations_menu"
+            action="action_sms_template"
+            sequence="0"
+    />
+
+    <menuitem
+            id="sms_mail_sender_menu"
+            name="SMS Mail Sender"
+            parent="custom_sms_operations_menu"
+            action="sms_mail_sender_action"
+            sequence="10"
+    />
+
+    <menuitem
+            id="sms_gateway_config_menu"
+            name="SMS Gateway Configuration"
+            parent="custom_sms_operations_menu"
+            action="sms_mail_server_form_action"
+            sequence="15"
+    />
+
+    <menuitem
+            id="sms_outbox_details_menu"
+            name="SMS Outbox"
+            parent="custom_sms_operations_menu"
+            action="sms_outbox_details_action"
+            sequence="20"
+    />
+
+</odoo>

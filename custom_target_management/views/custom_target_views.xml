@@ -88,12 +88,12 @@
                 <sheet>
                     <group>
                         <group>
-                            <field name="name"/>
-                            <field name="branch_id" required="1"/>
-                            <field name="period" required="1"/>
+                            <field name="name" readonly="status not in ['draft']"/>
+                            <field name="branch_id" required="1" readonly="status not in ['draft']"/>
+                            <field name="period" required="1" readonly="status not in ['draft']"/>
                             <field name="from_period"/>
                             <field name="to_period"/>
-                            <field name="commission_policy"/>
+                            <field name="commission_policy" readonly="status not in ['draft']"/>
                         </group>
                         <group>
                             <field name="branch_target_qty"/>
@@ -109,24 +109,32 @@
                             <button string="Generate Dealer"
                                     name="action_generate_dealer_lines"
                                     type="object"
-                                    class="btn-primary p-2 m-1"/>
+                                    class="btn-primary p-2 m-1"
+                                    invisible="status not in ['draft']"
+                            />
                             <button string="Generate Branch"
                                     name="action_generate_branch_lines"
                                     type="object"
-                                    class="btn-primary p-2 m-1"/>
+                                    class="btn-primary p-2 m-1"
+                                    invisible="status not in ['draft']"
+                            />
                             <button string="Set Target"
                                     name="open_set_target_wizard"
                                     type="object"
-                                    class="btn-primary p-2 m-1"/>
+                                    class="btn-primary p-2 m-1"
+                                    invisible="status not in ['draft']"
+                            />
                             <button string="Distribute All"
                                     name="action_distribute_all_lines"
                                     type="object"
-                                    class="btn-primary p-2 m-1"/>
+                                    class="btn-primary p-2 m-1"
+                                    invisible="status in ['approved']"
+                            />
                         </div>
                     </group>
                     <notebook>
                         <page string="Targets">
-                            <field name="line_ids">
+                            <field name="line_ids" readonly="status not in ['draft']">
                                 <list editable="bottom">
                                     <field name="dealer_branch_id"/>
                                     <field name="salesperson_id"/>
