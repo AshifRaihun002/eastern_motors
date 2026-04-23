@@ -47,6 +47,11 @@ class CustomSalesTarget(models.Model):
             if record.status == 'confirmed':
                 record.status = 'approved'
 
+    def send_back_target(self):
+        for record in self:
+            if record.status == 'confirmed':
+                record.status = 'draft'
+
     @api.onchange('branch_id', 'period')
     def _onchange_name(self):
         self.name = f"{self.branch_id.name or ''} {self.period.name or ''}".strip()

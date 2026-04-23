@@ -75,13 +75,20 @@
                             name="confirm_target"
                             type="object"
                             class="btn-primary p-2 m-1"
-                            invisible="status not in ['draft']"/>
+                            invisible="status not in ['draft']"
+                            groups="custom_target_management.group_target_user"/>
                     <button string="Approve Target"
                             name="approve_target"
                             type="object"
                             class="btn-primary p-2 m-1"
-                            invisible="status not in ['confirmed']"/>
-
+                            invisible="status not in ['confirmed']"
+                            groups="custom_target_management.group_target_admin"/>
+                    <button string="Send Back Target"
+                            name="send_back_target"
+                            type="object"
+                            class="btn-danger p-2 m-1"
+                            invisible="status not in ['confirmed']"
+                            groups="custom_target_management.group_target_admin"/>
                     <field name="status" widget="statusbar"/>
                 </header>
 
