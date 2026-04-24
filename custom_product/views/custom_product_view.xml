@@ -1,0 +1,222 @@
+<odoo>
+
+    <record id="view_product_custom_type_tree" model="ir.ui.view">
+        <field name="name">product.custom.type.tree</field>
+        <field name="model">product.custom.type</field>
+        <field name="arch" type="xml">
+            <list string="Product Types">
+                <field name="name"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_product_custom_type_form" model="ir.ui.view">
+        <field name="name">product.custom.type.form</field>
+        <field name="model">product.custom.type</field>
+        <field name="arch" type="xml">
+            <form string="Product Type">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_product_custom_type" model="ir.actions.act_window">
+        <field name="name">Product Types</field>
+        <field name="res_model">product.custom.type</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="view_product_custom_group_tree" model="ir.ui.view">
+        <field name="name">product.custom.group.tree</field>
+        <field name="model">product.custom.group</field>
+        <field name="arch" type="xml">
+            <list string="Product Groups">
+                <field name="name"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_product_custom_group_form" model="ir.ui.view">
+        <field name="name">product.custom.group.form</field>
+        <field name="model">product.custom.group</field>
+        <field name="arch" type="xml">
+            <form string="Product Group">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_product_product_form_inherit_replenishment" model="ir.ui.view">
+        <field name="name">product.product.form.inherit.replenishment</field>
+        <field name="model">product.product</field>
+        <field name="inherit_id" ref="stock.product_form_view_procurement_button"/>
+        <field name="arch" type="xml">
+            <!-- Add header button for critical locations -->
+            <xpath expr="//div[@name='button_box']//button[@name='action_product_forecast_report']" position="before">
+                <button name="action_view_critical_locations"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-exclamation-triangle"
+                        invisible="critical_locations == 0">
+                    <div class="o_field_widget o_stat_info">
+                        <span class="o_stat_value">
+                            <field name="critical_locations" nolabel="1"/>
+                        </span>
+                        <span class="o_stat_text">
+                            Critical Locations
+                        </span>
+                    </div>
+                </button>
+            </xpath>
+
+            <!-- Add replenishment status section -->
+            <xpath expr="//page[@name='inventory']" position="before">
+                <page name="replenishment" string="Replenishment Status">
+                    <group>
+                        <group string="Global Replenishment Status">
+                            <field name="needs_replenishment" readonly="1" force_save="1"/>
+                            <field name="critical_locations" force_save="1"/>
+                            <field name="qty_available" readonly="1" force_save="1"/>
+                            <field name="reordering_min_qty"/>
+                            <field name="reordering_max_qty"/>
+                        </group>
+                        <!--                        <group>-->
+                        <!--                            <field name="is_gift" readonly="1" force_save="1"/>-->
+                        <!--                        </group>-->
+
+                        <group string="Replenishment Warnings">
+                            <!-- Warning when min is set but max isn't -->
+                            <div name="max_qty_warning" class="alert alert-warning my-2"
+                                 invisible="not (reordering_min_qty &gt; 0 and reordering_max_qty &lt;= 0)"
+                                 role="alert">
+                                <i class="fa fa-exclamation-triangle mr-2"/>
+                                <span>Minimum quantity set but no maximum quantity. This may lead to overstocking.
+                                </span>
+                            </div>
+
+                            <!-- Warning when stock is critically low -->
+                            <div name="low_stock_warning" class="alert alert-warning my-2"
+                                 invisible="not (reordering_min_qty &gt; 0 and qty_available &lt; reordering_min_qty)"
+                                 role="alert">
+                                <i class="fa fa-exclamation-circle mr-2"/>
+                                <span>Stock level is below minimum quantity! Immediate replenishment needed.</span>
+                            </div>
+
+                            <!-- Warning when stock is very low -->
+                            <div name="critical_stock_warning" class="alert alert-warning my-2"
+                                 invisible="not (reordering_min_qty &gt; 0 and qty_available &lt; reordering_min_qty * 0.5)"
+                                 role="alert">
+                                <i class="fa fa-fire mr-2"/>
+                                <span>Stock level is critically low (less than 50% of minimum). Urgent action
+                                    required!
+                                </span>
+                            </div>
+                        </group>
+                    </group>
+
+                    <!-- Location-wise stock information -->
+                    <group string="Location-wise Stock Status" invisible="critical_locations == 0">
+                        <label for="stock_quant_ids" string="Locations Needing Replenishment"/>
+                        <field name="stock_quant_ids" id="stock_quant_ids" readonly="1"
+                               context="{'list_view_ref': 'brac_procurement.view_stock_quant_tree_replenishment'}">
+                            <list>
+                                <field name="location_id" string="Location"/>
+                                <field name="quantity" string="Current Qty"/>
+                                <field name="product_id" invisible="0"/>
+                                <field name="replenishment_status" widget="progressbar" options="{'editable': False}"/>
+                                <field name="needs_replenishment" invisible="1"/>
+                            </list>
+                        </field>
+                        <group string="Stock Status" invisible="critical_locations !=0">
+                            <div class="alert alert-success" role="alert">
+                                <i class="fa fa-check-circle mr-2"/>
+                                <span>All locations have sufficient stock levels.</span>
+                            </div>
+                        </group>
+                    </group>
+
+                    <!-- Info when no critical locations -->
+
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Product Tree View with Replenishment Status -->
+    <record id="view_product_product_tree_inherit_replenishment" model="ir.ui.view">
+        <field name="name">product.product.tree.inherit.replenishment</field>
+        <field name="model">product.product</field>
+        <field name="inherit_id" ref="stock.view_stock_product_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='qty_available']" position="after">
+                <field name="reordering_min_qty"/>
+                <field name="reordering_max_qty"/>
+                <field name="needs_replenishment" widget="boolean_favorite"/>
+                <field name="critical_locations"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_product_custom_group" model="ir.actions.act_window">
+        <field name="name">Product Groups</field>
+        <field name="res_model">product.custom.group</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="view_stock_quant_tree_replenishment" model="ir.ui.view">
+        <field name="name">stock.quant.tree.replenishment</field>
+        <field name="model">stock.quant</field>
+        <field name="arch" type="xml">
+            <list string="Replenishment Stock" create="false" delete="false"  decoration-danger="1">
+                <field name="product_id"/>
+                <field name="location_id"/>
+                <field name="quantity" string="Current Qty"/>
+                <field name="min_qty" string="Minimum Qty"/>
+                <field name="replenishment_status" widget="progressbar" options="{'editable': False}"/>
+                <field name="needs_replenishment" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_stock_quant_replenishment" model="ir.actions.act_window">
+        <field name="name">Replenishment Stock</field>
+        <field name="res_model">stock.quant</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_id" ref="view_stock_quant_tree_replenishment"/>
+       <field name="domain">[
+        ('location_id.usage', '=', 'internal'), ('location_id.replenish_location', '=', 'True')
+        ]</field>
+    </record>
+
+    <menuitem id="menu_stock_quant_replenishment"
+          name="Replenishment Stock"
+          parent="purchase.menu_purchase_products"
+          action="action_stock_quant_replenishment"
+          sequence="30"/>
+
+    <menuitem id="menu_purchase_product_custom_root"
+              name="Product Attributes"
+              parent="purchase.menu_purchase_config"
+              sequence="80"/>
+
+    <menuitem id="menu_purchase_product_custom_type"
+              name="Item Types"
+              parent="menu_purchase_product_custom_root"
+              action="action_product_custom_type"
+              sequence="10"/>
+
+    <menuitem id="menu_purchase_product_custom_group"
+              name="Product Groups"
+              parent="menu_purchase_product_custom_root"
+              action="action_product_custom_group"
+              sequence="20"/>
+
+</odoo>

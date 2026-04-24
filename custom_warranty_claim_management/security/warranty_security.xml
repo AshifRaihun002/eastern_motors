@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data noupdate="1">
+        <record model="ir.module.category" id="module_category_warranty_claim">
+            <field name="name">Warranty Claim</field>
+            <field name="description">Type of User that will work with different aspect of warranty management</field>
+            <field name="sequence">0</field>
+        </record>
+
+        <record model="ir.module.category" id="warranty_claim_user_type">
+            <field name="name">Warranty Claim User type</field>
+            <field name="parent_id" ref="module_category_warranty_claim"/>
+            <field name="sequence">0</field>
+        </record>
+
+        <record model="res.groups.privilege" id="warranty_claim_privilege">
+            <field name="name">Warranty Claim Privilege</field>
+            <field name="sequence">0</field>
+            <field name="category_id" ref="custom_warranty_claim_management.warranty_claim_user_type"/>
+        </record>
+
+        <record id="warranty_claim_user" model="res.groups">
+            <field name="name">User</field>
+            <field name="sequence">0</field>
+            <field name="privilege_id" ref="warranty_claim_privilege"/>
+        </record>
+
+        <record id="warranty_claim_inspector" model="res.groups">
+            <field name="name">Inspector</field>
+            <field name="sequence">5</field>
+            <field name="privilege_id" ref="warranty_claim_privilege"/>
+        </record>
+
+        <record id="warranty_claim_approver" model="res.groups">
+            <field name="name">Approver</field>
+            <field name="sequence">10</field>
+            <field name="privilege_id" ref="warranty_claim_privilege"/>
+        </record>
+    </data>
+</odoo>

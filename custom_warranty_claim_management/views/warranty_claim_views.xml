@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <!--Search View-->
+    <record id="warranty_claim_search" model="ir.ui.view">
+        <field name="name">warranty.claim.search</field>
+        <field name="model">warranty.claim</field>
+        <field name="arch" type="xml">
+            <search string="Warranty Claim">
+                <field name="name" filter_domain="['|', ('name','ilike',self), ('sales_order_id','ilike',self)]"
+                       string="Warranty Ref or Sales Order"/>
+                <field name="customer_id" string="Customer"/>
+                <field name="inspector" string="Inspector"/>
+                <group>
+                    <filter string="Status" name="state" context="{'group_by':'state'}"/>
+                    <filter string="Customer" name="customer_id" context="{'group_by':'customer_id'}"/>
+                    <filter string="Inspector" name="inspector" context="{'group_by':'inspector'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!--List View-->
+    <record model="ir.ui.view" id="warranty_claim_list">
+        <field name="name">warranty.claim.list</field>
+        <field name="model">warranty.claim</field>
+        <field name="arch" type="xml">
+            <list string="Warranty Claims">
+                <field name="name"/>
+                <field name="sales_order_id"/>
+                <field name="customer_id"/>
+                <field name="inspector"/>
+                <field name="state"/>
+                <field name="warranty_claim_date" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <!--Form View-->
+    <record model="ir.ui.view" id="warranty_claim_form">
+        <field name="name">warranty claim.form</field>
+        <field name="model">warranty.claim</field>
+        <field name="arch" type="xml">
+            <form string="Warranty Claim">
+                <header>
+                    <button name="assign_to_inspector" type="object" string="Assign Inspector"
+                            groups="custom_warranty_claim_management.warranty_claim_user"
+                            invisible="state not in ['draft']"/>
+                    <button name="inspection_done" type="object" string="Inspection Done"
+                            groups="custom_warranty_claim_management.warranty_claim_inspector"
+                            invisible="state not in ['assigned']"/>
+                    <button class="oe_highlight" invisible="state not in ['in_approval'] or not is_user_approver"
+                            name="open_approve_wizard" string="Approve" type="object"/>
+                    <button name="open_send_back_wizard" type="object" string="Send Back" class="btn-secondary"
+                            invisible="state not in ['in_approval'] or not is_user_approver"/>
+                    <field name="stage_id" widget="statusbar"
+                           options="{'clickable': '1'}"
+                           domain="[('config_id', '=', approval_config_id)]"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                            <field name="company_id" readonly="1" style="font-size:16px;"/>
+                        </h1>
+                    </div>
+                    <!--User-->
+                    <group groups="custom_warranty_claim_management.warranty_claim_user">
+                        <group>
+                            <field name="sales_order_id" readonly="state not in ['draft']" options="{'no_quick_create': True, 'no_create': True, 'no_create_edit': True, 'no_open': True}"/>
+                            <field name="approval_config_id" string="Approval Config" readonly="1"/>
+                            <field name="customer_id" required="1" readonly="state not in ['draft']"/>
+                            <field name="salesperson_id" readonly="state not in ['draft']"/>
+                            <field name="mobile" required="1" readonly="state not in ['draft']"/>
+                            <field name="email" readonly="state not in ['draft']"/>
+                            <field name="Address" required="1" readonly="state not in ['draft']"/>
+                        </group>
+                        <group>
+                            <field name="inspector" readonly="state not in ['draft']"/>
+                            <field name="sales_order_date" required="1" readonly="state not in ['draft']"/>
+                            <field name="warranty_claim_date" required="1" readonly="state not in ['draft']"/>
+                            <field name="approval_decision" readonly="1"/>
+                        </group>
+                    </group>
+                    <!--Other Users-->
+                    <group groups="custom_warranty_claim_management.warranty_claim_inspector,custom_warranty_claim_management.warranty_claim_approver">
+                        <group>
+                            <field name="sales_order_id" readonly="1"/>
+                            <field name="approval_config_id" string="Approval Config" readonly="1"/>
+                            <field name="customer_id" readonly="1"/>
+                            <field name="salesperson_id" readonly="1"/>
+                            <field name="mobile" readonly="1"/>
+                            <field name="email" readonly="1"/>
+                            <field name="Address" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="inspector" readonly="1"/>
+                            <field name="sales_order_date" readonly="1"/>
+                            <field name="warranty_claim_date" readonly="1"/>
+                            <field name="approval_decision" readonly="1"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Products">
+                            <field name="line_ids" readonly="state not in ['draft']">
+                                <list editable="bottom">
+                                    <field name="product_id" options="{'no_quick_create': True, 'no_create': True, 'no_create_edit': True, 'no_open': True}"/>
+                                    <field name="serial_number"/>
+                                    <field name="pattern"/>
+                                    <field name="name"/>
+                                    <field name="product_qty"/>
+                                    <field name="price_unit"/>
+                                </list>
+                            </field>
+                            <!--User-->
+                            <group  groups="custom_warranty_claim_management.warranty_claim_user">
+                                <field name="total_price"/>
+                            </group>
+                            <!--Other Users-->
+                            <group  groups="custom_warranty_claim_management.warranty_claim_inspector,custom_warranty_claim_management.warranty_claim_approver">
+                                <field name="total_price" readonly="1"/>
+                            </group>
+                        </page>
+
+                        <page string="Inspector Form">
+                            <!--Other Users-->
+                            <group groups="custom_warranty_claim_management.warranty_claim_user,custom_warranty_claim_management.warranty_claim_approver">
+                                <field name="inspection_date" readonly="1"/>
+                                <field name="inspector_observations" readonly="1"/>
+                                <field name="other_observations" readonly="1"/>
+                            </group>
+
+                            <!--Inspector-->
+                            <group groups="custom_warranty_claim_management.warranty_claim_inspector">
+                                <field name="inspection_date" readonly="state not in ['assigned']" required="1"/>
+                                <field name="inspector_observations" readonly="state not in ['assigned']" required="1"/>
+                                <field name="other_observations" readonly="state not in ['assigned']"/>
+                            </group>
+
+                            <!--Picture Type One-->
+                            <group>
+                                <field name="picture_type_one_ids" readonly="state not in ['assigned']">
+                                    <list editable="bottom">
+                                        <field name="image" string="" widget="image"/>
+                                    </list>
+                                </field>
+                            </group>
+
+                            <!--Picture Type Two-->
+                            <group>
+                                <field name="picture_type_two_ids" readonly="state not in ['assigned']">
+                                    <list editable="bottom">
+                                        <field name="image" string="" widget="image"/>
+                                    </list>
+                                </field>
+                            </group>
+
+                            <!--Picture Type Three-->
+                            <group>
+                                <field name="picture_type_three_ids" readonly="state not in ['assigned']">
+                                    <list editable="bottom">
+                                        <field name="image" string="" widget="image"/>
+                                    </list>
+                                </field>
+                            </group>
+
+                            <!--Picture Type Four-->
+                            <group>
+                                <field name="picture_type_four_ids" readonly="state not in ['assigned']">
+                                    <list editable="bottom">
+                                        <field name="image" string="" widget="image"/>
+                                    </list>
+                                </field>
+                            </group>
+
+                            <!--Picture Type Five-->
+                            <group>
+                                <field name="picture_type_five_ids" readonly="state not in ['assigned']">
+                                    <list editable="bottom">
+                                        <field name="image" string="" widget="image"/>
+                                    </list>
+                                </field>
+                            </group>
+                        </page>
+
+                        <page string="Approval History">
+                            <field name="approval_history_ids" readonly="1">
+                                <list create="false" edit="true" delete="false">
+                                    <field name="date"/>
+                                    <field name="stage_id"/>
+                                    <field name="user_id"/>
+                                    <field name="action_type"/>
+                                    <field name="approval_decision"/>
+                                    <field name="note"/>
+                                    <field name="refund_amount"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+
+    <!--Main Action-->
+    <record id="action_warranty_claim" model="ir.actions.act_window">
+        <field name="name">Warranty Claim</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">warranty.claim</field>
+        <field name="view_mode">list,form,kanban</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new warranty claim
+            </p>
+        </field>
+    </record>
+
+</odoo>

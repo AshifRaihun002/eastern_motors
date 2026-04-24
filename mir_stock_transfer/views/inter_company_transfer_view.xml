@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="requisition_master_inter_company" model="ir.ui.view">
+        <field name="name">requisition.master.inter.company</field>
+        <field name="model">custom.purchase.requisition</field>
+        <field name="inherit_id" ref="custom_purchase_requisition.view_purchase_requisition_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button class="btn-success" confirm="Are you sure you want to create internal transfer?" icon="fa-check"
+                        name="button_create_internal_transfer" string="Create Transfer" type="object"/>
+            </xpath>
+
+            <xpath expr="//sheet/div[@name='button_box']" position="inside">
+                <button name="action_view_internal_transfer" type="object"
+                        class="oe_stat_button" icon="fa-list"
+                        invisible="inter_company_transfer_count == 0">
+                    <div class="o_field_widget o_stat_info">
+                        <field name="inter_company_transfer_count" widget="statinfo" string="Transfers"/>
+                    </div>
+                </button>
+            </xpath>
+            <xpath expr="//field[@name='action_type']" position="after">
+                <field name="warehouse_src_id"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_inter_company_transfer_list" model="ir.ui.view">
+        <field name="name">inter.company.transfer.list</field>
+        <field name="model">inter.company.transfer</field>
+        <field name="arch" type="xml">
+            <list decoration-info="state == 'confirm'"
+                  decoration-success="state == 'done'"
+                  decoration-danger="state == 'cancel'" duplicate="false">
+                <field name="name"/>
+                <field name="date"/>
+                <field name="source_company_id"/>
+                <field name="destination_company_id"/>
+                <field name="source_warehouse_id"/>
+                <field name="destination_warehouse_id"/>
+                <field name="transfer_status" widget="badge" decoration-success="transfer_status == 'full'"
+                       decoration-info="transfer_status == 'pending'"/>
+                <field name="receiving_status" widget="badge" decoration-success="receiving_status == 'full'"
+                       decoration-info="receiving_status == 'partial'"/>
+                <field name="state" widget="badge" decoration-info="state == 'confirm'"
+                       decoration-success="state == 'done'"
+                       decoration-danger="state == 'cancel'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_inter_company_transfer_form" model="ir.ui.view">
+        <field name="name">inter.company.transfer.form</field>
+        <field name="model">inter.company.transfer</field>
+        <field name="arch" type="xml">
+            <form string="Inter Company Transfer" duplicate="false">
+                <header>
+                    <button name="action_confirm" type="object" string="Confirm"
+                            class="btn-outline-info"
+                            invisible="state != 'draft'"/>
+
+                    <button name="button_send" type="object" string="Transfer" class="btn-success"
+                            invisible="state != 'confirm'" confirm="Are you sure you want to transfer this transfer?"
+                            icon="fa-check"/>
+
+                    <button name="button_validate_transfer" type="object" string="Receive"
+                            class="btn-success" confirm="Are you sure you want to validate this transfer?"
+                            invisible="state != 'sent'" icon="fa-check"/>
+
+                    <button name="button_cancel" type="object" string="Cancel"
+                            class="btn-danger" confirm="Are you sure you want to cancel this transfer?"
+                            invisible="state in ('done','sent','cancel')"/>
+
+                    <field name="state" widget="statusbar" statusbar_visible="draft,confirm,sent,done,cancel"/>
+                </header>
+
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_transfers" type="object"
+                                class="oe_stat_button" icon="fa-list"
+                                invisible="picking_count == 0">
+                            <div class="o_field_widget o_stat_info">
+                                <field name="picking_count" widget="statinfo" string="Transfers"/>
+                            </div>
+                        </button>
+
+                        <button name="action_view_account_moves" type="object"
+                                class="oe_stat_button" icon="fa-list"
+                                invisible="account_move_count == 0">
+                            <div class="o_field_widget o_stat_info">
+                                <field name="account_move_count" widget="statinfo" string="Journal Entries"/>
+                            </div>
+                        </button>
+                    </div>
+
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+
+                    <group>
+                        <group string="Transfer Info">
+                            <field name="is_fixed_asset_transfer" readonly="1" force_save="1"
+                                   invisible="not is_fixed_asset_transfer"/>
+                            <field name="date" required="1" readonly="state in ('done','sent','cancel')"/>
+                            <field name="notes" placeholder="Enter transfer notes here..."/>
+                            <field name="transfer_status" widget="badge" readonly="1" force_save="1"
+                                   decoration-success="transfer_status == 'full'"
+                                   decoration-info="transfer_status == 'pending'"/>
+                            <field name="receiving_status" widget="badge" readonly="1" force_save="1"
+                                   decoration-success="receiving_status == 'full'"
+                                   decoration-info="receiving_status == 'partial'"/>
+                            <field name="active" invisible="1"/>
+                        </group>
+
+                        <group string="Companies &amp; Warehouses">
+                            <field name="source_company_id" options="{'no_create': True, 'no_edit': True, 'no_open': True}"
+                                   required="1" readonly="1" force_save="1"/>
+                            <field name="source_warehouse_id" options="{'no_create': True, 'no_edit': True, 'no_open': True}"
+                                   required="1" readonly="state in ('done','sent','cancel')"/>
+                            <field name="source_location_id" options="{'no_create': True, 'no_edit': True, 'no_open': True}"
+                                   required="1" readonly="state in ('done','sent','cancel')"/>
+                            <field name="destination_company_id" options="{'no_create': True, 'no_edit': True, 'no_open': True}"
+                                   readonly="state in ('done','sent','cancel')"/>
+                            <field name="destination_warehouse_id" options="{'no_create': True, 'no_edit': True, 'no_open': True}"
+                                   readonly="state in ('done','sent','cancel')"/>
+                            <field name="destination_location_id" options="{'no_create': True, 'no_edit': True, 'no_open': True}"
+                                   readonly="state in ('done','sent','cancel')"/>
+                            <field name="intercompany_transit_location_id" options="{'no_create': True, 'no_edit': True, 'no_open': True}"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Transfer Lines">
+                            <field name="transfer_line_ids">
+                                <list editable="bottom" decoration-success="transfer_status == 'full'"
+                                      decoration-info="transfer_status == 'partial'" delete="false">
+                                    <field name="product_id" options="{'no_create': True}" readonly="parent.state in ('done','sent','cancel')"/>
+                                    <field name="product_uom_id" options="{'no_create': True}" readonly="parent.state in ('done','sent','cancel')"/>
+                                    <field name="asset_id" options="{'no_create': True}"
+                                           column_invisible="not parent.is_fixed_asset_transfer" readonly="parent.state in ('done','sent','cancel')"/>
+                                    <field name="asset_value" column_invisible="not parent.is_fixed_asset_transfer" readonly="parent.state in ('done','sent','cancel')"/>
+                                    <field name="book_value" column_invisible="not parent.is_fixed_asset_transfer" readonly="parent.state in ('done','sent','cancel')"/>
+                                    <field name="quantity" readonly="parent.state in ('done','sent','cancel')"/>
+                                    <field name="received_quantity" required="parent.state == 'sent'" column_invisible="parent.state not in ('sent','done','cancel')" readonly="parent.state in ('done','cancel')"/>
+                                    <field name="transfer_status" widget="badge" readonly="1" force_save="1"
+                                           decoration-success="transfer_status == 'full'"
+                                           decoration-info="transfer_status == 'pending'"/>
+
+                                    <field name="receiving_status" widget="badge" readonly="1" force_save="1"
+                                           decoration-success="receiving_status == 'full'"
+                                           decoration-info="receiving_status == 'partial'"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+<!--    <record id="view_inter_company_transfer_search" model="ir.ui.view">-->
+<!--        <field name="name">inter.company.transfer.search</field>-->
+<!--        <field name="model">inter.company.transfer</field>-->
+<!--        <field name="arch" type="xml">-->
+<!--            <search string="Inter Company Transfers">-->
+<!--                <field name="name" string="Transfer Reference"/>-->
+<!--                <field name="source_company_id"/>-->
+<!--                <field name="destination_company_id"/>-->
+<!--                <field name="source_warehouse_id"/>-->
+<!--                <field name="destination_warehouse_id"/>-->
+<!--                <field name="transfer_status"/>-->
+<!--                <field name="receiving_status"/>-->
+<!--                <field name="state"/>-->
+<!--                <field name="date"/>-->
+
+<!--                <filter string="Draft" name="draft" domain="[('state','=','draft')]" help="Show only draft transfers"/>-->
+<!--                <filter string="Confirmed" name="confirm" domain="[('state','=','confirm')]"/>-->
+<!--                <filter string="Sent" name="sent" domain="[('state','=','sent')]"/>-->
+<!--                <filter string="Done" name="done" domain="[('state','=','done')]"/>-->
+<!--                <filter string="Cancelled" name="cancel" domain="[('state','=','cancel')]"/>-->
+<!--                -->
+<!--            </search>-->
+<!--        </field>-->
+<!--    </record>-->
+
+    <record id="view_inter_company_transfer_line_list" model="ir.ui.view">
+        <field name="name">inter.company.transfer.line.list</field>
+        <field name="model">inter.company.transfer.line</field>
+        <field name="arch" type="xml">
+            <list default_order="transfer_date desc">
+                <field name="source_company_id"/>
+                <field name="destination_company_id"/>
+                <field name="source_warehouse_id"/>
+                <field name="destination_warehouse_id"/>
+                <field name="transfer_date"/>
+                <field name="product_id"/>
+                <field name="product_uom_id"/>
+                <field name="quantity"/>
+                <field name="received_quantity"/>
+                <field name="transfer_status" widget="badge" decoration-success="transfer_status == 'full'"
+                       decoration-info="transfer_status == 'pending'"/>
+                <field name="receiving_status" widget="badge" decoration-success="receiving_status == 'full'"
+                       decoration-info="receiving_status == 'partial'"/>
+            </list>
+        </field>
+    </record>
+
+<!--    <record id="search_inter_company_transfer_line" model="ir.ui.view">-->
+<!--        <field name="name">inter.company.transfer.line.search</field>-->
+<!--        <field name="model">inter.company.transfer.line</field>-->
+<!--        <field name="arch" type="xml">-->
+<!--            <search string="Inter Company Transfer Lines">-->
+<!--                <field name="source_company_id"/>-->
+<!--                <field name="destination_company_id"/>-->
+<!--                <field name="source_warehouse_id"/>-->
+<!--                <field name="destination_warehouse_id"/>-->
+<!--                <field name="product_id"/>-->
+<!--                <field name="transfer_date"/>-->
+<!--                <separator/>-->
+<!--                <filter string="Pending Transfers" name="pending" domain="[('transfer_status','=','pending')]"/>-->
+<!--                <filter string="Fully Transferred" name="full" domain="[('transfer_status','=','full')]"/>-->
+<!--                <separator/>-->
+<!--                <filter string="Partially Received" name="partial" domain="[('receiving_status','=','partial')]"/>-->
+<!--                <filter string="Fully Received" name="done" domain="[('receiving_status','=','full')]"/>-->
+<!--                <filter string="Pending Receive" name="pending_receive" domain="[('receiving_status','=','pending')]"/>-->
+<!--                <separator/>-->
+<!--                <group expand="0" string="Group By">-->
+<!--                    <filter string="Transfer Date" name="group_transfer_date" context="{'group_by': 'transfer_date'}"/>-->
+<!--                    <filter string="Source Company" name="group_source_company" context="{'group_by': 'source_company_id'}"/>-->
+<!--                    <filter string="Destination Company" name="group_destination_company" context="{'group_by': 'destination_company_id'}"/>-->
+<!--                    <filter string="Source Warehouse" name="group_source_warehouse" context="{'group_by': 'source_warehouse_id'}"/>-->
+<!--                    <filter string="Destination Warehouse" name="group_destination_warehouse" context="{'group_by': 'destination_warehouse_id'}"/>-->
+<!--                    <filter string="Product" name="group_product" context="{'group_by': 'product_id'}"/>-->
+<!--                    <filter string="Transfer Status" name="group_transfer_status" context="{'group_by':'transfer_status'}"/>-->
+<!--                    <filter string="Receiving Status" name="group_receiving_status" context="{'group_by':'receiving_status'}"/>-->
+<!--                </group>-->
+<!--            </search>-->
+<!--        </field>-->
+<!--    </record>-->
+
+    <record id="action_all_inter_company_transfer" model="ir.actions.act_window">
+        <field name="name">All Transfers</field>
+        <field name="res_model">inter.company.transfer.line</field>
+        <field name="view_mode">list,graph,pivot</field>
+        <field name="context">{'create': False, 'edit': False, 'delete': False, 'copy': False}</field>
+    </record>
+
+    <record id="action_inter_company_transfer" model="ir.actions.act_window">
+        <field name="name">Inter Company Transfers</field>
+        <field name="res_model">inter.company.transfer</field>
+        <field name="view_mode">list,form,graph,pivot</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new Inter Company Transfer
+            </p>
+        </field>
+    </record>
+
+
+    <menuitem id="menu_inter_company_transfer_root"
+              name="Inter Company Transfers"
+              parent="stock.menu_stock_root"
+              sequence="50"/>
+
+    <menuitem id="menu_inter_company_transfer"
+              name="Inter Company Transfers"
+              parent="mir_stock_transfer.menu_inter_company_transfer_root"
+              action="action_inter_company_transfer"
+              sequence="50"/>
+
+
+    <menuitem id="menu_all_inter_company_transfer"
+              name="All Inter Company Transfers"
+              parent="mir_stock_transfer.menu_inter_company_transfer_root"
+              action="action_all_inter_company_transfer"
+              sequence="52"/>
+</odoo>

@@ -1,0 +1,75 @@
+<odoo>
+    <record id="view_product_template_search_inherit_custom_search_group" model="ir.ui.view">
+        <field name="name">product.template.search.inherit.custom.search.group</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_search_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='product_tag_ids']" position="after">
+                <field name="size"/>
+                <field name="pr"/>
+                <field name="pattern"/>
+                <field name="rim"/>
+                <field name="weight"/>
+                <field name="set"/>
+                <field name="vendor_product_code"/>
+                <field name="hs_code"/>
+            </xpath>
+
+            <xpath expr="//filter[@name='group_by_product_properties']" position="after">
+                <filter name="type_id" context="{'group_by': 'type_id'}"/>
+                <filter name="group_id" context="{'group_by': 'group_id'}"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_product_template_tree_inherit_custom_fields" model="ir.ui.view">
+        <field name="name">product.template.tree.inherit.custom.fields</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_tree_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="type_id"/>
+                <field name="group_id"/>
+
+                <field name="size" optional="hide"/>
+                <field name="pr" optional="hide"/>
+                <field name="pattern" optional="hide"/>
+                <field name="rim" optional="hide"/>
+                <field name="weight" optional="hide"/>
+                <field name="set" optional="hide"/>
+                <field name="vendor_product_code" optional="hide"/>
+                <field name="hs_code" optional="hide"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_product_template_form_inherit_custom_fields" model="ir.ui.view">
+        <field name="name">product.template.form.inherit.custom.fields</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_form_view"/>
+        <field name="arch" type="xml">
+
+            <!-- Add a new tab inside the notebook -->
+            <xpath expr="//group[@name='internal_notes']" position="before">
+                <group string="Other Attributes">
+                    <group>
+                        <field name="size"/>
+                        <field name="pr"/>
+                        <field name="pattern"/>
+                        <field name="type_id"/>
+                        <field name="rim"/>
+                        <field name="weight"/>
+                    </group>
+                    <group>
+                        <field name="set"/>
+                        <field name="origen" options="{'no_create': True, 'no_open': True}"/>
+                        <field name="group_id"/>
+                        <field name="vendor_product_code"/>
+                        <field name="hs_code"/>
+                    </group>
+                </group>
+            </xpath>
+
+        </field>
+    </record>
+</odoo>

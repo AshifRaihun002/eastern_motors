@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data noupdate="0">
+        <record id="mail_purchase_requisition_template" model="mail.template">
+            <field name="name">Purchase Requisition Mail Template</field>
+            <field name="model_id" ref="custom_purchase_requisition.model_custom_purchase_requisition"/>
+            <field name="subject">Purchase Requisition send mail</field>
+            <field name="body_html" type="html">
+                <div>
+                    Dear Sir / Concern,
+                    <br/>
+                    Here is in attachment a Purchase Requisition <t t-out="object.name"/> from My Company (San Francisco). <br/>
+                    If you have any questions, please do not hesitate to contact us. <br/>
+                    <br/><br/>
+
+                    Best regards, <br/>
+
+                    -- <br/>
+                    <t t-out="object.env.user.name"/> <br/>
+
+                </div>
+            </field>
+<!--            <field name="report_template_ids" eval="[(4, ref('custom_purchase_requisition.action_report_purchase_requisition'))]"/>-->
+<!--            <field name="auto_delete" eval="True"/>-->
+        </record>
+
+        <record id="requisition_send_mail_template" model="mail.template">
+            <field name="name">Purchase Requisition Mail Approved Link attachment</field>
+            <field name="model_id" ref="custom_purchase_requisition.model_custom_purchase_requisition"/>
+        </record>
+    </data>
+</odoo>

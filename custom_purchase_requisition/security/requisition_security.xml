@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- Purchase Requisition Viewer -->
+        <record id="module_category_requisition" model="res.groups.privilege">
+            <field name="name">Purchase Requisition</field>
+            <field name="description">Helps you Requisition</field>
+            <field name="sequence">1</field>
+        </record>
+
+        <record id="module_category_purchase" model="res.groups.privilege">
+            <field name="name">Purchase Order Notification</field>
+            <field name="description">Helps you PO Notification</field>
+            <field name="sequence">2</field>
+        </record>
+
+
+        <record id="group_pr_viewer" model="res.groups">
+            <field name="name">PR Viewer</field>
+            <field name="privilege_id" ref="custom_purchase_requisition.module_category_requisition"/>
+            <!--            <field name="category_id" ref="custom_purchase_requisition.module_category_purchase_requisition"/>-->
+        </record>
+
+        <record id="group_po_delivery_notification" model="res.groups">
+            <field name="name">PO Delivery Notification</field>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+            <field name="privilege_id" ref="custom_purchase_requisition.module_category_purchase"/>
+        </record>
+
+        <!-- Purchase Requisition User -->
+        <record id="group_pr_user" model="res.groups">
+            <field name="name">PR User</field>
+            <field name="privilege_id" ref="custom_purchase_requisition.module_category_requisition"/>
+            <!--            <field name="category_id" ref="custom_purchase_requisition.module_category_purchase_requisition"/>-->
+            <field name="implied_ids" eval="[(4, ref('custom_purchase_requisition.group_pr_viewer'))]"/>
+        </record>
+
+        <!-- Purchase Requisition Requester -->
+        <record id="group_pr_requester" model="res.groups">
+            <field name="name">PR Requester</field>
+            <field name="privilege_id" ref="custom_purchase_requisition.module_category_requisition"/>
+            <!--            <field name="category_id" ref="custom_purchase_requisition.module_category_purchase_requisition"/>-->
+            <field name="implied_ids" eval="[(4, ref('custom_purchase_requisition.group_pr_user'))]"/>
+        </record>
+
+        <!-- Purchase Requisition Manager -->
+        <record id="group_pr_manager" model="res.groups">
+            <field name="name">PR Manager</field>
+            <field name="privilege_id" ref="custom_purchase_requisition.module_category_requisition"/>
+            <!--            <field name="category_id" ref="custom_purchase_requisition.module_category_purchase_requisition"/>-->
+            <field name="implied_ids" eval="[(4, ref('custom_purchase_requisition.group_pr_requester'))]"/>
+        </record>
+
+    </data>
+</odoo>

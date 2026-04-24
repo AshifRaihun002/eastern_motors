@@ -1,0 +1,792 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="portal_my_home_sales_create"
+              name="Create Sales Order Portal Card"
+              inherit_id="portal.portal_my_home"
+              priority="23">
+        <xpath expr="//div[hasclass('o_portal_docs')]" position="before">
+            <t t-set="portal_client_category_enable" t-value="True"/>
+        </xpath>
+        <div id="portal_client_category" position="inside">
+            <t t-call="portal.portal_docs_entry">
+                <t t-set="icon" t-value="'/sale/static/src/img/bag.svg'"/>
+                <t t-set="title">Create Sales Order</t>
+                <t t-set="url" t-value="'/sales/apply'"/>
+                <t t-set="text">Create a quotation with customer pricing and credit details</t>
+                <t t-set="config_card" t-value="True"/>
+            </t>
+        </div>
+    </template>
+    <template id="portal_my_home_menu_sale_inherit"
+              inherit_id="sale.portal_my_home_menu_sale"
+              name="Portal Sales Breadcrumb Inherit">
+
+        <xpath expr="//a[contains(@t-attf-href, '/my/orders')]" position="attributes">
+            <attribute name="t-attf-href">/my/sales_orders?{{ keep_query() }}</attribute>
+        </xpath>
+    </template>
+    <template id="sale_order_portal_content_inherit"
+              inherit_id="sale.sale_order_portal_content"
+              name="Sale Order Portal Content Inherit">
+
+        <xpath expr="//tbody[@id='sale_info_table']" position="inside">
+            <tr t-if="sale_order.payment_type">
+                <th class="ps-0 pb-0">Payment Type:</th>
+                <td class="w-100 pb-0 text-wrap">
+                    <span t-field="sale_order.payment_type"/>
+                </td>
+            </tr>
+
+            <tr t-if="sale_order.customer_type">
+                <th class="ps-0 pb-0">Customer Type:</th>
+                <td class="w-100 pb-0 text-wrap">
+                    <span t-field="sale_order.customer_type"/>
+                </td>
+            </tr>
+            <tr t-if="sale_order.user_id">
+                <th class="ps-0 pb-0">Sales Person:</th>
+                <td class="w-100 pb-0 text-wrap">
+                    <span t-field="sale_order.user_id.name"/>
+                </td>
+            </tr>
+        </xpath>
+
+    </template>
+
+    <template id="portal_apply_sales_order" name="Apply Sales Order">
+        <t t-call="portal.portal_layout">
+            <style>
+                .pso-shell {
+                background: linear-gradient(180deg, #f4efe6 0%, #ffffff 42%, #eef3f7 100%);
+                border-radius: 28px;
+                padding: 2rem;
+                }
+                .pso-hero {
+                background: linear-gradient(135deg, #153243 0%, #28536b 100%);
+                color: #fff;
+                border-radius: 24px;
+                padding: 2rem;
+                box-shadow: 0 24px 60px rgba(21, 50, 67, 0.18);
+                }
+                .pso-title {
+                font-family: Georgia, "Times New Roman", serif;
+                font-size: 2rem;
+                font-weight: 700;
+                margin-bottom: 0.4rem;
+                }
+                .pso-subtitle {
+                max-width: 42rem;
+                opacity: 0.88;
+                margin-bottom: 0;
+                }
+                .pso-panel {
+                background: #fff;
+                border: 1px solid rgba(21, 50, 67, 0.08);
+                border-radius: 22px;
+                box-shadow: 0 14px 40px rgba(18, 44, 56, 0.08);
+                }
+                .pso-panel-header {
+                padding: 1.25rem 1.5rem 0;
+                }
+                .pso-panel-body {
+                padding: 1.25rem 1.5rem 1.5rem;
+                }
+                .pso-kpi {
+                background: #f7f9fb;
+                border: 1px solid rgba(40, 83, 107, 0.08);
+                border-radius: 18px;
+                padding: 1rem;
+                height: 100%;
+                }
+                .pso-kpi-label {
+                color: #5a6b75;
+                font-size: 0.82rem;
+                text-transform: uppercase;
+                letter-spacing: 0.04em;
+                margin-bottom: 0.35rem;
+                }
+                .pso-kpi-value {
+                color: #153243;
+                font-size: 1.1rem;
+                font-weight: 700;
+                }
+                .pso-kpi-value.warn {
+                color: #b54708;
+                }
+                .pso-product-card {
+                border: 1px solid rgba(21, 50, 67, 0.08);
+                border-radius: 20px;
+                background: #fff;
+                padding: 1rem;
+                height: 100%;
+                transition: transform 0.18s ease, box-shadow 0.18s ease;
+                }
+                .pso-product-card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 16px 38px rgba(21, 50, 67, 0.1);
+                }
+                .pso-product-code {
+                color: #6b7280;
+                font-size: 0.8rem;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                }
+                .pso-product-name {
+                color: #14212b;
+                font-weight: 700;
+                font-size: 1rem;
+                }
+                .pso-product-desc {
+                color: #536471;
+                font-size: 0.9rem;
+                min-height: 2.8rem;
+                }
+                .pso-price {
+                color: #0f766e;
+                font-size: 1.2rem;
+                font-weight: 700;
+                }
+                .pso-badge {
+                display: inline-flex;
+                align-items: center;
+                padding: 0.25rem 0.6rem;
+                border-radius: 999px;
+                font-size: 0.78rem;
+                font-weight: 700;
+                background: #e6eef3;
+                color: #28536b;
+                }
+                .pso-submit {
+                background: linear-gradient(135deg, #9a3412 0%, #c2410c 100%);
+                border: 0;
+                border-radius: 16px;
+                padding: 0.95rem 1.2rem;
+                font-weight: 700;
+                width: 100%;
+                }
+                @media (max-width: 991px) {
+                .pso-shell {
+                padding: 1rem;
+                border-radius: 20px;
+                }
+                .pso-hero {
+                padding: 1.4rem;
+                }
+                }
+            </style>
+
+            <div class="container py-4 py-lg-5">
+                <div class="pso-shell">
+                    <div class="pso-hero mb-4">
+                        <div class="pso-title">Create Sales Order</div>
+                        <p class="pso-subtitle">
+                            Select a customer first, review pricing from the assigned pricelist, and submit only the
+                            products you need with the right payment type and credit visibility.
+                        </p>
+                    </div>
+
+                    <t t-if="error">
+                        <div class="alert alert-danger rounded-4 mb-4" role="alert">
+                            <t t-esc="error"/>
+                        </div>
+                    </t>
+
+                    <div class="row g-4 align-items-start">
+                        <div class="col-12 col-lg-4">
+                            <div class="pso-panel mb-4">
+                                <div class="pso-panel-header">
+                                    <h5 class="mb-1">Customer Selection</h5>
+                                    <p class="text-muted mb-0">Choose the customer to load the correct pricelist and
+                                        credit information.
+                                    </p>
+                                </div>
+                                <div class="pso-panel-body">
+                                    <form action="/sales/apply" method="get">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-semibold">Customer</label>
+                                            <select name="partner_id" class="form-select" onchange="this.form.submit()"
+                                                    required="1">
+                                                <option value="">Select Customer</option>
+                                                <t t-foreach="partners" t-as="partner">
+                                                    <option t-att-value="partner.id"
+                                                            t-att-selected="selected_partner and partner.id == selected_partner.id and 'selected' or None">
+                                                        <t t-esc="partner.name"/>
+                                                    </option>
+                                                </t>
+                                            </select>
+                                        </div>
+                                    </form>
+
+                                    <t t-if="selected_partner">
+                                        <div class="row g-3">
+                                            <div class="col-6">
+                                                <div class="pso-kpi">
+                                                    <div class="pso-kpi-label">Customer Type</div>
+                                                    <div class="pso-kpi-value">
+                                                        <t t-esc="dict(selected_partner._fields['customer_type'].selection).get(selected_partner.customer_type, '-') if 'customer_type' in selected_partner._fields else '-'"/>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-6">
+                                                <div class="pso-kpi">
+                                                    <div class="pso-kpi-label">Pricelist</div>
+                                                    <div class="pso-kpi-value">
+                                                        <t t-esc="selected_partner.property_product_pricelist.name or '-'"/>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-6">
+                                                <div class="pso-kpi">
+                                                    <div class="pso-kpi-label">Credit Limit</div>
+                                                    <div class="pso-kpi-value">
+                                                        <span t-field="selected_partner.credit_limit"/>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-6">
+                                                <div class="pso-kpi">
+                                                    <div class="pso-kpi-label">Remaining Credit</div>
+                                                    <div t-att-class="'pso-kpi-value %s' % ('warn' if selected_partner.remaining_credit_limit and selected_partner.credit_limit and selected_partner.remaining_credit_limit &lt;= (selected_partner.credit_limit * 0.2) else '')">
+                                                        <span t-field="selected_partner.remaining_credit_limit"/>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-6">
+                                                <div class="pso-kpi">
+                                                    <div class="pso-kpi-label">Credit Used</div>
+                                                    <div class="pso-kpi-value">
+                                                        <span t-field="selected_partner.credit_used_amount"/>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-6">
+                                                <div class="pso-kpi">
+                                                    <div class="pso-kpi-label">Security Amount</div>
+                                                    <div class="pso-kpi-value">
+                                                        <t t-if="selected_partner.is_security_money_apply">
+                                                            <span t-field="selected_partner.security_money"/>
+                                                        </t>
+                                                        <t t-else="">Not Applied</t>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </t>
+                                </div>
+                            </div>
+
+                            <div class="pso-panel">
+                                <div class="pso-panel-header">
+                                    <h5 class="mb-1">Order Details</h5>
+                                    <p class="text-muted mb-0">Keep the important commercial details visible before
+                                        submission.
+                                    </p>
+                                </div>
+                                <div class="pso-panel-body">
+                                    <div class="mb-3">
+                                        <div class="pso-badge">Portal quotation request</div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label fw-semibold">Payment Type</label>
+                                        <p class="text-muted small mb-0">Choose how this order should be treated for
+                                            customer credit.
+                                        </p>
+                                    </div>
+                                    <t t-if="selected_partner and selected_partner.remaining_credit_limit &lt;= 0 and selected_payment_type == 'credit'">
+                                        <div class="alert alert-warning rounded-4 py-2">
+                                            Remaining credit is low or exhausted. Review the amount before creating a
+                                            credit order.
+                                        </div>
+                                    </t>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-lg-8">
+                            <div class="pso-panel">
+                                <div class="pso-panel-header">
+                                    <h5 class="mb-1">Products &amp; Pricing</h5>
+                                    <p class="text-muted mb-0">Prices are shown from the selected customer pricelist.
+                                        Enter quantity only for the products you want to order.
+                                    </p>
+                                </div>
+                                <div class="pso-panel-body">
+                                    <form action="/sales/submit" method="post">
+                                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                        <input type="hidden" name="partner_id"
+                                               t-att-value="selected_partner.id if selected_partner else ''"/>
+
+                                        <div class="mb-4">
+                                            <label class="form-label fw-semibold">Payment Type</label>
+                                            <div class="row g-2">
+                                                <t t-foreach="payment_type_options" t-as="payment_option">
+                                                    <div class="col-12 col-md-4">
+                                                        <label class="border rounded-4 p-3 w-100 h-100 bg-light-subtle">
+                                                            <input type="radio"
+                                                                   name="payment_type"
+                                                                   t-att-value="payment_option[0]"
+                                                                   t-att-checked="selected_payment_type == payment_option[0] and 'checked' or None"
+                                                                   class="form-check-input me-2"/>
+                                                            <span class="fw-semibold" t-esc="payment_option[1]"/>
+                                                        </label>
+                                                    </div>
+                                                </t>
+                                            </div>
+                                        </div>
+
+                                        <div class="row g-3">
+                                            <!-- Product selector card -->
+                                            <div class="col-12">
+                                                <div class="pso-product-card">
+                                                    <div class="row g-3 align-items-end">
+                                                        <div class="col-12 col-md-6">
+                                                            <label class="form-label fw-semibold">Select Product</label>
+                                                            <select id="product_select"
+                                                                    class="form-select form-control-lg">
+                                                                <option value="">Select Product</option>
+                                                                <t t-foreach="product_cards" t-as="card">
+                                                                    <option
+                                                                            t-att-value="card['product'].id"
+                                                                            t-att-data-name="card['product'].display_name"
+                                                                            t-att-data-code="card['default_code'] or 'Product'"
+                                                                            t-att-data-uom="card['uom_name']"
+                                                                            t-att-data-price="card['price']">
+                                                                        <t t-esc="card['product'].display_name"/>
+                                                                        -
+                                                                        <t t-esc="'%.2f' % card['price']"/>
+                                                                    </option>
+                                                                </t>
+                                                            </select>
+                                                        </div>
+                                                        <div class="col-12 col-md-3">
+                                                            <label class="form-label fw-semibold">Price</label>
+                                                            <div class="form-control form-control-lg text-end bg-light"
+                                                                 id="selected_product_price">
+                                                                <span id="selected_product_price_symbol"
+                                                                      t-out="selected_partner.property_product_pricelist.currency_id.symbol if selected_partner and selected_partner.property_product_pricelist and selected_partner.property_product_pricelist.currency_id else ''"/>
+                                                                <span id="selected_product_price_value">0.00</span>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-12 col-md-3">
+                                                            <label class="form-label fw-semibold">Quantity</label>
+                                                            <input type="number"
+                                                                   id="product_qty"
+                                                                   min="1"
+                                                                   step="1"
+                                                                   class="form-control form-control-lg text-end"
+                                                                   placeholder="0"/>
+                                                        </div>
+
+                                                        <div class="col-12 col-md-3">
+                                                            <button type="button" id="add_product_btn"
+                                                                    class="btn btn-primary w-100 pso-submit">
+                                                                Add Product
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Order line list -->
+                                            <div class="col-12">
+                                                <div class="pso-product-card">
+                                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                                        <div class="pso-product-name">Order Line List</div>
+                                                        <div class="pso-badge">Multiple Products</div>
+                                                    </div>
+
+                                                    <div class="table-responsive">
+                                                        <table class="table align-middle mb-0">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>Code</th>
+                                                                    <th>Product</th>
+                                                                    <th>UOM</th>
+                                                                    <th class="text-end">Price</th>
+                                                                    <th class="text-end">Qty</th>
+                                                                    <th class="text-end">Subtotal</th>
+                                                                    <th class="text-center">Action</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody id="order_line_body">
+                                                                <tr id="empty_order_line">
+                                                                    <td colspan="7" class="text-center text-muted">No
+                                                                        product added yet.
+                                                                    </td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+
+                                                    <input type="hidden" name="order_lines_json" id="order_lines_json"/>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <script type="text/javascript">
+                                            <![CDATA[
+                                                document.addEventListener("DOMContentLoaded", function () {
+                                                    const productSelect = document.getElementById("product_select");
+                                                    const qtyInput = document.getElementById("product_qty");
+                                                    const addBtn = document.getElementById("add_product_btn");
+                                                    const orderLineBody = document.getElementById("order_line_body");
+                                                    const orderLinesJson = document.getElementById("order_lines_json");
+                                                    const priceSymbol = document.getElementById("selected_product_price_symbol");
+                                                    const priceValue = document.getElementById("selected_product_price_value");
+                                                    const partnerIdInput = document.querySelector('input[name="partner_id"]');
+
+                                                    let orderLines = [];
+
+                                                    function setDisplayedPrice(price, currencySymbol) {
+                                                        priceValue.textContent = parseFloat(price || 0).toFixed(2);
+                                                        priceSymbol.textContent = currencySymbol || "";
+                                                    }
+
+                                                    async function fetchProductPrice(productId, qty) {
+                                                        const partnerId = partnerIdInput ? partnerIdInput.value : "";
+                                                        if (!productId || !partnerId) {
+                                                            return {price: 0, currency_symbol: ""};
+                                                        }
+                                                        try {
+                                                            const response = await fetch("/sales/product_price", {
+                                                                method: "POST",
+                                                                credentials: "same-origin",
+                                                                headers: {
+                                                                    "Content-Type": "application/json",
+                                                                },
+                                                                body: JSON.stringify({
+                                                                    jsonrpc: "2.0",
+                                                                    method: "call",
+                                                                    params: {
+                                                                        partner_id: partnerId,
+                                                                        product_id: productId,
+                                                                        quantity: qty,
+                                                                    },
+                                                                    id: Date.now(),
+                                                                }),
+                                                            });
+                                                            const result = await response.json();
+                                                            return result.result || {price: 0, currency_symbol: ""};
+                                                        } catch (error) {
+                                                            return {price: 0, currency_symbol: ""};
+                                                        }
+                                                    }
+
+                                                    async function updateSelectedProductPrice() {
+                                                        const productId = productSelect.value;
+                                                        const qty = parseFloat(qtyInput.value || 1) || 1;
+                                                        const data = await fetchProductPrice(productId, qty);
+                                                        const selectedOption = productSelect.options[productSelect.selectedIndex];
+                                                        if (selectedOption && productId) {
+                                                            selectedOption.setAttribute("data-price", data.price || 0);
+                                                        }
+                                                        setDisplayedPrice(data.price || 0, data.currency_symbol || "");
+                                                    }
+
+                                                    function renderEmptyRow() {
+                                                        orderLineBody.innerHTML = "";
+                                                        const tr = document.createElement("tr");
+                                                        tr.id = "empty_order_line";
+
+                                                        const td = document.createElement("td");
+                                                        td.colSpan = 7;
+                                                        td.className = "text-center text-muted";
+                                                        td.textContent = "No product added yet.";
+
+                                                        tr.appendChild(td);
+                                                        orderLineBody.appendChild(tr);
+                                                    }
+
+                                                    function renderOrderLines() {
+                                                        orderLineBody.innerHTML = "";
+
+                                                        if (!orderLines.length) {
+                                                            renderEmptyRow();
+                                                            orderLinesJson.value = JSON.stringify(orderLines);
+                                                            return;
+                                                        }
+
+                                                        orderLines.forEach((line, index) => {
+                                                            const subtotal = parseFloat(line.price) * parseFloat(line.qty);
+                                                            const tr = document.createElement("tr");
+
+                                                            const tdCode = document.createElement("td");
+                                                            tdCode.textContent = line.code || "";
+
+                                                            const tdName = document.createElement("td");
+                                                            tdName.textContent = line.name || "";
+
+                                                            const tdUom = document.createElement("td");
+                                                            tdUom.textContent = line.uom || "";
+
+                                                            const tdPrice = document.createElement("td");
+                                                            tdPrice.className = "text-end";
+                                                            tdPrice.textContent = parseFloat(line.price).toFixed(2);
+
+                                                            const tdQty = document.createElement("td");
+                                                            tdQty.className = "text-end";
+                                                            tdQty.textContent = parseFloat(line.qty).toFixed(2);
+
+                                                            const tdSubtotal = document.createElement("td");
+                                                            tdSubtotal.className = "text-end";
+                                                            tdSubtotal.textContent = subtotal.toFixed(2);
+
+                                                            const tdAction = document.createElement("td");
+                                                            tdAction.className = "text-center";
+
+                                                            const removeBtn = document.createElement("button");
+                                                            removeBtn.type = "button";
+                                                            removeBtn.className = "btn btn-sm btn-danger";
+                                                            removeBtn.textContent = "Remove";
+                                                            removeBtn.addEventListener("click", function () {
+                                                                orderLines.splice(index, 1);
+                                                                renderOrderLines();
+                                                            });
+
+                                                            tdAction.appendChild(removeBtn);
+
+                                                            tr.appendChild(tdCode);
+                                                            tr.appendChild(tdName);
+                                                            tr.appendChild(tdUom);
+                                                            tr.appendChild(tdPrice);
+                                                            tr.appendChild(tdQty);
+                                                            tr.appendChild(tdSubtotal);
+                                                            tr.appendChild(tdAction);
+
+                                                            orderLineBody.appendChild(tr);
+                                                        });
+
+                                                        orderLinesJson.value = JSON.stringify(orderLines);
+                                                    }
+
+                                                    addBtn.addEventListener("click", async function () {
+                                                        const selectedOption = productSelect.options[productSelect.selectedIndex];
+                                                        const productId = productSelect.value;
+                                                        const qty = parseFloat(qtyInput.value || 0);
+
+                                                        if (!productId) {
+                                                            alert("Please select a product.");
+                                                            return;
+                                                        }
+
+                                                        if (!qty || qty <= 0) {
+                                                            alert("Please enter valid quantity.");
+                                                            return;
+                                                        }
+
+                                                        const existingLine = orderLines.find(line => String(line.product_id) === String(productId));
+                                                        const totalQty = existingLine ? (parseFloat(existingLine.qty) + qty) : qty;
+                                                        const pricingData = await fetchProductPrice(productId, totalQty);
+                                                        const linePrice = parseFloat(pricingData.price || 0);
+
+                                                        if (existingLine) {
+                                                            existingLine.qty = totalQty;
+                                                            existingLine.price = linePrice;
+                                                        } else {
+                                                            orderLines.push({
+                                                                product_id: productId,
+                                                                code: selectedOption.getAttribute("data-code") || "",
+                                                                name: selectedOption.getAttribute("data-name") || "",
+                                                                uom: selectedOption.getAttribute("data-uom") || "",
+                                                                price: linePrice,
+                                                                qty: qty
+                                                            });
+                                                        }
+
+                                                        productSelect.value = "";
+                                                        qtyInput.value = "";
+                                                        updateSelectedProductPrice();
+                                                        renderOrderLines();
+                                                    });
+
+                                                    productSelect.addEventListener("change", updateSelectedProductPrice);
+                                                    qtyInput.addEventListener("input", updateSelectedProductPrice);
+
+                                                    setDisplayedPrice(0, priceSymbol.textContent || "");
+                                                    renderOrderLines();
+                                                });
+                                                ]]>
+                                        </script>
+
+                                        <div class="mt-4">
+                                            <label for="note" class="form-label fw-semibold">Note</label>
+                                            <textarea name="note"
+                                                      id="note"
+                                                      class="form-control rounded-4"
+                                                      rows="4"
+                                                      placeholder="Add delivery, reference, or order note...">
+                                                <t t-esc="note"/>
+                                            </textarea>
+                                        </div>
+
+                                        <div class="mt-4">
+                                            <button type="submit" class="btn btn-primary pso-submit">
+                                                Submit Sales Order
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <template id="portal_my_home_sales_orders_list"
+              name="My Sales Orders Portal Card"
+              inherit_id="portal.portal_my_home"
+              priority="24">
+        <xpath expr="//div[hasclass('o_portal_docs')]" position="before">
+            <t t-set="portal_client_category_enable" t-value="True"/>
+        </xpath>
+        <div id="portal_client_category" position="inside">
+            <t t-call="portal.portal_docs_entry">
+                <t t-set="icon" t-value="'/sale/static/src/img/bag.svg'"/>
+                <t t-set="title">My Sales Orders</t>
+                <t t-set="url" t-value="'/my/sales_orders'"/>
+                <t t-set="text">View portal-created sales orders</t>
+                <t t-set="config_card" t-value="True"/>
+            </t>
+        </div>
+        <div id="portal_client_category" position="inside">
+            <t t-call="portal.portal_docs_entry">
+                <t t-set="icon" t-value="'/web/static/img/avatar_grey.png'"/>
+                <t t-set="title">Customer Profile</t>
+                <t t-set="url" t-value="'/my/customer_profile'"/>
+                <t t-set="text">View customer profile, contact details, and credit information</t>
+                <t t-set="config_card" t-value="True"/>
+            </t>
+        </div>
+    </template>
+    <template id="portal_my_customer_profile" name="My Customer Profile">
+        <t t-call="portal.portal_layout">
+            <div class="container py-5">
+                <div class="card shadow-sm border-0 rounded-4">
+                    <div class="card-header text-white rounded-top-4"
+                         style="background: linear-gradient(135deg, #153243 0%, #28536b 100%);">
+                        <h4 class="mb-0">Customer Profile</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-12 col-md-6">
+                                <strong>Name:</strong>
+                                <br/>
+                                <span t-esc="partner.name"/>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <strong>Email:</strong>
+                                <br/>
+                                <span t-esc="partner.email or '-'"/>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <strong>Phone:</strong>
+                                <br/>
+                                <span t-esc="partner.phone or '-'"/>
+                            </div>
+<!--                            <div class="col-12 col-md-6">-->
+<!--                                <strong>Mobile:</strong>-->
+<!--                                <br/>-->
+<!--                                <span t-esc="partner.mobile or '-'"/>-->
+<!--                            </div>-->
+                            <div class="col-12">
+                                <strong>Address:</strong>
+                                <br/>
+                                <span t-esc="partner.contact_address or '-'"/>
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <strong>Credit Limit:</strong>
+                                <br/>
+                                <span t-field="partner.credit_limit"/>
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <strong>Remaining Credit:</strong>
+                                <br/>
+                                <span t-field="partner.remaining_credit_limit"/>
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <strong>Credit Used:</strong>
+                                <br/>
+                                <span t-field="partner.credit_used_amount"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+    <template id="portal_my_sales_orders" name="My Sales Orders">
+        <t t-call="portal.portal_layout">
+            <div class="container py-5">
+                <div class="card shadow-sm border-0 rounded-4">
+                    <div class="card-header text-white rounded-top-4"
+                         style="background: linear-gradient(135deg, #153243 0%, #28536b 100%);">
+                        <h4 class="mb-0">My Sales Orders</h4>
+                    </div>
+                    <div class="card-header text-white rounded-top-4 d-flex justify-content-between align-items-center"
+                         style="background: linear-gradient(135deg, #153243 0%, #28536b 100%);">
+
+                        <a href="/sales/apply" class="btn btn-light fw-semibold rounded-3 px-3">
+                            Create New Order
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        <t t-if="not sales_orders">
+                            <div class="alert alert-warning rounded-4 mb-0">
+                                No sales orders found.
+                            </div>
+                        </t>
+
+                        <t t-if="sales_orders">
+                            <div class="table-responsive">
+                                <table class="table align-middle">
+                                    <thead>
+                                        <tr>
+                                            <th>Order</th>
+                                            <th>Customer</th>
+                                            <th>Payment</th>
+                                            <th>Date</th>
+                                            <th>Status</th>
+                                            <th class="text-end">Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-foreach="sales_orders" t-as="sale">
+                                            <tr>
+                                                <td>
+                                                    <a t-att-href="sale.get_portal_url()"
+                                                       class="fw-semibold text-decoration-none">
+                                                        <t t-esc="sale.name"/>
+                                                    </a>
+                                                </td>
+                                                <td>
+                                                    <t t-esc="sale.partner_id.name"/>
+                                                </td>
+                                                <td>
+                                                    <t t-esc="dict(sale._fields['payment_type'].selection).get(sale.payment_type, '-') if 'payment_type' in sale._fields else '-'"/>
+                                                </td>
+                                                <td>
+                                                    <span t-field="sale.date_order"/>
+                                                </td>
+                                                <td>
+                                                    <span t-esc="sale.state"/>
+                                                </td>
+                                                <td class="text-end">
+                                                    <span t-field="sale.amount_total"/>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </t>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+</odoo>

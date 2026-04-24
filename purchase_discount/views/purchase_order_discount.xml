@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_purchase_order_form_inherit_discount" model="ir.ui.view">
+        <field name="name">purchase.order.form.inherit.discount</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_form"/>
+        <field name="arch" type="xml">
+            <!-- Add discount fields above order lines -->
+            <xpath expr="//field[@name='order_line']/../.." position="before">
+                <group>
+                    <group string="Discount Configuration">
+                    <field name="discount_type" widget="radio" readonly="state in ('purchase','cancel','done')"/>
+                    <field name="discount_amount"
+                           invisible="discount_type not in ('fixed','global') or discount_type == 'no_discount'"
+                           string="Discount Amount" readonly="state in ('purchase','cancel','done')"/>
+                    <field name="discount_percentage"
+                           invisible="discount_type != 'percentage' or discount_type == 'no_discount'"
+                           string="Discount Percentage (%)"/>
+                    <button name="action_apply_discount"
+                            string="Apply Discount"
+                            type="object"
+                            class="btn-primary"
+                            invisible="discount_type == 'no_discount' or state not in ['draft', 'sent']"/>
+                </group>
+                    <group string="Discount Summary">
+                            <!-- Show amount before discount -->
+                    <div>
+                        <!-- Corrected label with for attribute -->
+                        <label for="amount_before_discount_field" string="Amount Before Discount:"
+                               class="o_form_label"/>
+                        <field name="amount_before_discount" readonly="1" nolabel="1"
+                               id="amount_before_discount_field"/>
+                    </div>
+
+                    <!-- Fixed Discount -->
+                    <span invisible="discount_type != 'fixed'">
+                        Fixed Discount:
+                        <field name="discount_amount" readonly="1" nolabel="1"/>
+                    </span>
+
+                    <!-- Percentage Discount -->
+                    <span invisible="discount_type != 'percentage'">
+                        Discount:<field name="discount_percentage" readonly="1" nolabel="1"/>%
+                    </span>
+
+                    <!-- No Discount -->
+                    <span invisible="discount_type != 'no_discount'">
+                        No Discount Applied
+                    </span>
+
+                </group>
+                </group>
+
+
+
+
+            </xpath>
+
+<!--             Show discount summary in totals - Use correct XPath -->
+            <xpath expr="//field[@name='tax_totals']" position="before">
+                <field name="amount_before_discount" string="Amount Before Discount" readonly="1"/>
+            </xpath>
+
+        </field>
+    </record>
+</odoo>

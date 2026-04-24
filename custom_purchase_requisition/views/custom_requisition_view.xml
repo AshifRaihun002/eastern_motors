@@ -1,0 +1,332 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Tree View -->
+        <record id="view_requisition_process_search" model="ir.ui.view">
+            <field name="name">requisition.process.search</field>
+            <field name="model">custom.purchase.requisition</field>
+            <field name="arch" type="xml">
+                <search string="Requisition Search">
+                    <field name="name"/>
+                    <field name="company_id"/>
+                    <field name="initiator"/>
+                    <field name="state"/>
+
+                    <filter name="approved_requisition_state" string="Approved Requisition"
+                            domain="[('state', '=', 'done')]"/>
+                    <filter string="Date" name="requisition_date" date="requisition_date"/>
+                </search>
+            </field>
+        </record>
+        <record id="view_purchase_requisition_tree" model="ir.ui.view">
+            <field name="name">purchase.requisition.tree</field>
+            <field name="model">custom.purchase.requisition</field>
+            <field name="arch" type="xml">
+                <list string="Purchase Requisitions">
+                    <header>
+                        <button class="btn-primary" name="approve_requisition" string="Bulk Approve" type="object"/>
+                    </header>
+                    <field name="name"/>
+                    <field name="initiator"/>
+                    <field name="purchase_type"/>
+                    <field name="product_cat_id" column_invisible="1"/>
+                    <field name="requisition_date"/>
+                    <field name="state"/>
+                    <field name="total_amount"/>
+                    <field name="approval_config_id"/>
+                    <field name="stage_id"/>
+                    <field name="is_review"/>
+                    <field name="action_type"/>
+                    <field name="company_id"/>
+                </list>
+            </field>
+        </record>
+        <!-- Form View -->
+        <record id="view_purchase_requisition_form" model="ir.ui.view">
+            <field name="name">purchase.requisition.form</field>
+            <field name="model">custom.purchase.requisition</field>
+            <field name="arch" type="xml">
+                <form string="Purchase Requisition">
+                    <header>
+                        <field invisible="1" name="is_user_approver"/>
+                        <button class="oe_highlight" groups="custom_purchase_requisition.group_pr_requester"
+                                invisible="state in ('draft', 'done', 'cancel') or not is_user_approver"
+                                name="approve_requisition" string="Approve" type="object"/>
+                        <button class="oe_highlight" groups="custom_purchase_requisition.group_pr_manager"
+                                invisible="state in ('approval_pending', 'cancel', 'done')" name="confirm_requisition"
+                                string="Confirm" type="object"/>
+                        <button name="action_open_purchase_order_form"
+                                string="Create PO"
+                                type="object"
+                                class="btn-primary"
+                                invisible="state != 'done'" groups="custom_purchase_requisition.group_pr_requester"/>
+                        <button class="btn btn-warning"
+                                groups="custom_purchase_requisition.group_pr_manager"
+                                invisible="state in ('draft','done', 'cancel') or not is_user_approver"
+                                name="send_back_note" string="Send Back" type="object"/>
+
+                        <button class="btn btn-warning"
+                                groups="custom_purchase_requisition.group_pr_manager"
+                                invisible="state not in ('done') or not is_user_approver " name="review_requisition"
+                                string="Review" type="object"/>
+                        <button class="oe_highlight btn btn-danger"
+                                groups="custom_purchase_requisition.group_pr_manager"
+                                invisible="state in ('done', 'cancel') or not is_user_approver"
+                                name="action_approval_cancel" status="confirm" string="Cancel" type="object"/>
+                        <button name="button_draft"
+                                groups="custom_purchase_requisition.group_pr_manager" type="object"
+                                string="Set To Draft" class="btn btn-primary"
+                                invisible="state in ('draft','done','approval_pending')"/>
+                        <field name="state" statusbar_visible="draft,confirm,approval_pending,done" widget="statusbar"/>
+
+                        <field name="stage_id" widget="statusbar"/>
+                    </header>
+                    <sheet readonly="state == 'done'">
+                        <div class="oe_button_box" name="button_box">
+                            <button name="action_view_purchase_orders"
+                                    type="object" invisible="po_count == 0"
+                                    class="oe_stat_button"
+                                    icon="fa-shopping-cart">
+                                <field name="po_count" string="Purchase Orders" widget="statinfo"/>
+                            </button>
+                            <!--                            <field invisible="1" name="rfq_count"/>-->
+                            <!--                            <field invisible="1" name="process_count"/>-->
+                            <!--                            <button class="oe_stat_button" icon="fa-file-text" invisible="rfq_count == 0"-->
+                            <!--                                    name="get_rfq_action" string="RFQ" type="object">-->
+                            <!--                                <field help="RFQ" name="rfq_count" string="RFQ(s)" widget="statinfo"/>-->
+                            <!--                            </button>-->
+                            <!--                            <button class="oe_stat_button"-->
+                            <!--                                    groups="custom_purchase_requisition.group_procurement_process_user,custom_purchase_requisition.group_procurement_process_request,custom_purchase_requisition.group_procurement_process_manager"-->
+                            <!--                                    icon="fa-file-text" invisible="process_count == 0" name="get_pp_action"-->
+                            <!--                                    string="Process" type="object">-->
+                            <!--                                <field help="RFQ" name="process_count" string="Process(s)" widget="statinfo"/>-->
+                            <!--                            </button>-->
+                        </div>
+                        <group>
+                            <group>
+                                <field name="name"/>
+                                <field force_save="1" name="initiator" readonly="1"/>
+                                <field force_save="1" name="purchase_type"
+                                       readonly="state in ('approval_pending', 'done','cancel','in_progress')"
+                                       widget="radio"/>
+
+                                <field force_save="1" name="company_id" readonly="1" options="{'no_create': True}"/>
+                            </group>
+                            <group>
+                                <field name="approval_config_id" readonly="state != 'draft'" required="1"/>
+                                <field name="requisition_date"/>
+                                <field invisible="1" name="is_review"/>
+                                <field name="remarks" readonly="state in ('done', 'cancel')"/>
+                                <field name="product_cat_id" readonly="state in ('done', 'cancel')" invisible="1"/>
+                                <field name="action_type" force_save="1" readonly="1"/>
+                                <!--                                <field name="lead_time" invisible="1"/>-->
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Purchase Requisition Lines">
+                                <field name="line_ids"
+                                       readonly="state not in ('draft') or (state == 'approval_pending' and not is_user_approver)"
+                                       widget="section_and_note_one2many">
+                                    <list create="true" edit="true" editable="bottom" readonly="state == 'done'">
+                                        <field force_save="1" name="purchase_order_line_ids"
+                                               readonly="parent.is_review == True" optional="hide"/>
+                                        <field name="serial_no" string="SL No" readonly="1" force_save="1"/>
+                                        <field name="product_cat_id" force_save="1" options="{'no_create': True}"
+                                               readonly="parent.state in ('approved', 'cancel')"/>
+                                        <field force_save="1" name="product_id" readonly="parent.is_review == True"
+                                               options="{'no_create': True}"
+                                               domain="[('categ_id', '=', product_cat_id)]"/>
+                                        <field force_save="1" name="specification"
+                                               readonly="state == 'done'" width="160px;"/>
+                                        <field name="size" force_save="1" readonly="1"/>
+                                        <field name="pr" readonly="1" force_save="1"/>
+                                        <field name="pattern" force_save="1" readonly="1"/>
+                                        <field name="hs_code" readonly="1" force_save="1"/>
+                                        <field force_save="1"
+                                               name="uom_id" readonly="parent.is_review == True" string="UOM"/>
+                                        <field force_save="1" name="product_uom_qty"
+                                               readonly="parent.is_review == True"/>
+                                        <field force_save="1" name="rfq_product_qty" optional="hide" readonly="1"
+                                               string="RFQ Qty"/>
+                                        <field name="po_quantity" string="PO Qty"/>
+                                        <field name="po_remaining_qty" invisible="0" force_save="1"/>
+                                        <field force_save="1" name="po_rec_qty" optional="show" readonly="1"
+                                               string="Received Qty"/>
+
+                                        <field force_save="1" name="price_unit"
+                                               readonly="state == 'done' or po_quantity > 0"/>
+                                        <field name="last_po_id" readonly="1" force_save="1" optional="hide"/>
+                                        <field name="pro_state" readonly="1" force_save="1" optional="hide"/>
+                                        <field name="last_price_unit" readonly="1" force_save="1" optional="hide"/>
+                                        <field name="last_po_line_id" readonly="1" force_save="1" column_invisible="1"/>
+                                        <field name="last_po_vendor" readonly="1" force_save="1" optional="hide"/>
+                                        <field name="last_po_qty" readonly="1" force_save="1" optional="hide"/>
+                                        <field name="prod_current_stock" readonly="1" force_save="1" optional="hide"/>
+                                        <field force_save="1" name="subtotal" readonly="1"/>
+                                        <field force_save="1" name="stock_qty" optional="hide" readonly="1"/>
+                                        <field name="responsible_person" readonly="state == 'done'"/>
+                                        <field name="company_id" force_save="1" readonly="1" optional="hide"
+                                               invisible="1"/>
+                                        <field force_save="1" name="remarks"
+                                               readonly="parent.state in ('done','cancel')"/>
+                                        <field column_invisible="True" name="state"/>
+
+                                    </list>
+                                    <form>
+                                        <group>
+                                            <field name="product_id"/>
+                                            <field name="product_uom_qty"/>
+                                            <field name="price_unit"/>
+                                            <field name="uom_id"/>
+                                            <field name="remarks"/>
+                                            <field name="subtotal" readonly="1"/>
+                                        </group>
+                                    </form>
+                                </field>
+                            </page>
+
+                            <!--                            <page string="Approval History" invisible="1">-->
+                            <!--                                &lt;!&ndash; Add fields or elements for the second extra tab here &ndash;&gt;-->
+                            <!--                                <field name="approval_history_ids" readonly="True">-->
+                            <!--                                    <list create="false">-->
+                            <!--                                        <field name="stage_id"/>-->
+                            <!--                                        <field name="action_type"/>-->
+                            <!--                                        <field name="user_id"/>-->
+                            <!--                                        <field name="date"/>-->
+                            <!--                                        <field name="note"/>-->
+                            <!--                                    </list>-->
+                            <!--                                </field>-->
+                            <!--                            </page>-->
+                            <page string="Approval History For Requisition">
+                                <field name="approval_history_new_ids" readonly="1">
+                                    <list>
+                                        <field name="date"/>
+                                        <field name="stage_id"/>
+                                        <field name="to_stage_id"/>
+                                        <field name="user_id"/>
+                                        <field name="action_type"/>
+                                        <field name="note"/>
+                                    </list>
+                                </field>
+                            </page>
+                        </notebook>
+                        <div class="text-end">
+                            <h4>
+                                <div>
+                                    <label class="oe_highlight" string="Total Amount" for="total_amount"/>
+                                    <field name="total_amount"/>
+                                </div>
+                            </h4>
+
+                        </div>
+                    </sheet>
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+        <!-- Search View -->
+        <record id="view_purchase_requisition_search" model="ir.ui.view">
+            <field name="name">purchase.requisition.search</field>
+            <field name="model">custom.purchase.requisition</field>
+            <field name="arch" type="xml">
+                <search string="Search Purchase Requisitions">
+                    <field name="name"/>
+                    <field name="initiator"/>
+                    <field name="purchase_type"/>
+                    <field name="requisition_date"/>
+                    <field name="state"/>
+                    <field name="stage_id"/>
+                </search>
+            </field>
+        </record>
+
+
+        <!--        <record id="view_brac_purchase_requisition_line_search" model="ir.ui.view">-->
+        <!--            <field name="name">custom.purchase.requisition.line.search</field>-->
+        <!--            <field name="model">custom.purchase.requisition.line</field>-->
+        <!--            <field name="arch" type="xml">-->
+        <!--                <search string="Search Purchase Requisition Lines">-->
+        <!--                    &lt;!&ndash; Basic Search Fields &ndash;&gt;-->
+        <!--                    <field name="requisition_id" string="Requisition"/>-->
+        <!--                    <field name="product_id" string="Product"/>-->
+        <!--                    <field name="serial_no" string="SL No"/>-->
+        <!--                    <field name="specification"/>-->
+        <!--                    <field name="responsible_person"/>-->
+        <!--                    <field name="product_cat_id" string="Product Category"/>-->
+
+        <!--                    &lt;!&ndash; Predefined Filters Section &ndash;&gt;-->
+
+        <!--                    <separator/>-->
+
+        <!--                    &lt;!&ndash; Procurement Status Filters &ndash;&gt;-->
+
+        <!--                    <separator/>-->
+
+        <!--                    &lt;!&ndash; Process State Filters &ndash;&gt;-->
+
+        <!--                    &lt;!&ndash; Group By Section &ndash;&gt;-->
+        <!--                    <group expand="0" string="Group By">-->
+        <!--                        <filter string="Requisition" name="group_requisition"-->
+        <!--                                context="{'group_by': 'requisition_id'}"/>-->
+        <!--                        <filter string="Product" name="group_product"-->
+        <!--                                context="{'group_by': 'product_id'}"/>-->
+        <!--                        <filter string="Category" name="group_category"-->
+        <!--                                context="{'group_by': 'product_cat_id'}"/>-->
+
+        <!--                        <filter string="Responsible Person" name="group_responsible"-->
+        <!--                                context="{'group_by': 'responsible_person'}"/>-->
+        <!--                        <filter string="UoM" name="group_uom"-->
+        <!--                                context="{'group_by': 'uom_id'}"/>-->
+        <!--                        <filter string="Stage" name="group_stage"-->
+        <!--                                context="{'group_by': 'stage_id'}"/>-->
+        <!--                    </group>-->
+
+        <!--                    &lt;!&ndash; Custom Filters with Context for Action Buttons &ndash;&gt;-->
+        <!--                </search>-->
+        <!--            </field>-->
+        <!--        </record>-->
+
+        <!-- Action -->
+
+        <record id="action_purchase_requisition" model="ir.actions.act_window">
+            <field name="name">Purchase Requisitions</field>
+            <field name="res_model">custom.purchase.requisition</field>
+            <field name="view_mode">list,form,graph,pivot</field>
+            <field name="search_view_id" ref="view_requisition_process_search"/>
+        </record>
+        <record id ="action_requisition_all_view" model="ir.actions.act_window">
+            <field name="name">Requisition All</field>
+            <field name="res_model">custom.purchase.requisition</field>
+            <field name="view_mode">list,form,graph,pivot</field>
+            <field name="type">ir.actions.act_window</field>
+        </record>
+
+        <record id="action_req_approval" model="ir.actions.act_window">
+            <field name="name">REQ Approval</field>
+            <field name="res_model">approval.config</field>
+            <field name="view_mode">list,form</field>
+            <field name="context">{'default_approval_type': 'requisition','default_has_employee_id': 1}</field>
+            <field name="domain">[('approval_type', '=', 'requisition')]</field>
+        </record>
+        <!-- Menu Item -->
+        <menuitem id="menu_purchase_requisition_root" name="REQ" sequence="10"
+                  web_icon="custom_purchase_requisition,static/description/icon.png"/>
+        <menuitem action="action_purchase_requisition" id="menu_purchase_requisition" name="Purchase Requisitions"
+                  parent="purchase.menu_purchase_root" sequence="2"/>
+
+        <menuitem id="purchase_requisitions_all" name="Requisition" parent="menu_purchase_requisition_root"
+                  action="action_requisition_all_view" sequence="10"/>
+
+
+        <record id="approve_requisition_server_action" model="ir.actions.server">
+            <field name="name">Approve Requisition</field>
+            <field name="model_id" ref="custom_purchase_requisition.model_custom_purchase_requisition"/>
+            <field name="binding_model_id" ref="custom_purchase_requisition.model_custom_purchase_requisition"/>
+            <field name="state">code</field>
+            <field name="code">
+                if records:
+                records.filtered(lambda r: r.state == 'approval_pending').approve_requisition()
+            </field>
+        </record>
+    </data>
+</odoo>

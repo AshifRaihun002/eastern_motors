@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Form View for LC Shipment Wizard -->
+        <record id="view_lc_shipment_wizard_form" model="ir.ui.view">
+            <field name="name">lc.shipment.wizard.form</field>
+            <field name="model">lc.shipment.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Create LC Shipment">
+                    <sheet>
+                        <!-- LC Information Header -->
+                        <group>
+                            <group>
+                                <label string="Letter of Credit" for="lc_id"/>
+                                <field name="lc_id" readonly="1" nolabel="1"/>
+                            </group>
+                            <group>
+                                <label string="Vendor" for="partner_id"/>
+                                <field name="partner_id" readonly="1" force_save="1" nolabel="1"/>
+                            </group>
+                            <group>
+                                <label string="Currency Type" for="purchase_process"/>
+                                <field name="purchase_process" readonly="1" nolabel="1"/>
+                            </group>
+                            <group>
+                                <label string="Account Currency" for="currency_id"/>
+                                <field name="currency_id" readonly="1" nolabel="1"/>
+                            </group>
+                            <group>
+                                <label string="Conversion Rate" for="local_currency"/>
+                                <field name="local_currency" readonly="1" nolabel="1"/>
+                            </group>
+                        </group>
+
+                        <separator string="Products to Ship"/>
+
+                        <div class="alert alert-info" role="alert">
+                            <strong>Info:</strong> Select the quantities you want to ship for each product. Only products with available quantity are shown.
+                        </div>
+
+                        <field name="shipment_line_ids" mode="list">
+                            <list string="Products" editable="bottom"
+                                  decoration-danger="quantity > available_qty"
+                                  decoration-warning="quantity == available_qty">
+                                <!-- Product Information -->
+                                <field name="product_id" string="Product" readonly="1"/>
+                                <field name="default_code" string="Internal Ref" readonly="1"/>
+                                <field name="product_uom" string="UoM" readonly="1"/>
+
+                                <!-- Quantity Information -->
+                                <field name="product_qty" string="Total Qty" readonly="1" widget="float"/>
+                                <field name="shipped_qty" string="Shipped" readonly="1" widget="float"/>
+                                <field name="available_qty" string="Available" readonly="1" widget="float"/>
+                                <field name="quantity" string="Ship Qty" required="1" widget="float"/>
+
+                                <!-- Pricing Information -->
+                                <field name="price_unit" string="Unit Price" readonly="1" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                <field name="foreign_currency" string="Unit Rate (Local)" readonly="1" widget="float"/>
+                                <field name="foreign_price_subtotal" string="Subtotal (Local)" readonly="1" widget="float"/>
+                                <field name="price_subtotal" string="Subtotal" readonly="1" widget="monetary" options="{'currency_field': 'company_currency_id'}"/>
+
+                                <!-- Hidden fields -->
+                                <field name="company_currency_id" invisible="1"/>
+                                <field name="lc_line_id" invisible="1"/>
+                                <field name="lc_purchase_process" invisible="1"/>
+                                <field name="lc_local_currency" invisible="1"/>
+                            </list>
+                        </field>
+                    </sheet>
+
+                    <footer>
+                        <button name="action_create_shipment" string="Create Shipment" type="object" class="btn-primary"/>
+                        <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <!-- Action for LC Shipment Wizard -->
+        <record id="action_lc_shipment_wizard" model="ir.actions.act_window">
+            <field name="name">Create LC Shipment</field>
+            <field name="res_model">lc.shipment.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="view_lc_shipment_wizard_form"/>
+            <field name="target">new</field>
+        </record>
+
+    </data>
+</odoo>

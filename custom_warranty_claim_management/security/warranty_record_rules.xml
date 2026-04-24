@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data noupdate="1">
+        <record id="ir_rule_warranty_claim_inspector_own" model="ir.rule">
+            <field name="name">Warranty: Inspector only see their own assigned claims</field>
+            <field name="model_id" ref="custom_warranty_claim_management.model_warranty_claim"/>
+            <field name="domain_force">[('state', 'in', ['assigned', 'inspected', 'in_approval']), ('inspector', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('custom_warranty_claim_management.warranty_claim_inspector'))]"/>
+        </record>
+
+
+    </data>
+</odoo>

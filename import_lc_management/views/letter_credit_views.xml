@@ -1,0 +1,593 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="lc_view_tree" model="ir.ui.view">
+        <field name="name">letter.credit.tree</field>
+        <field name="model">letter.credit</field>
+        <field name="arch" type="xml">
+            <list string="Letter Of Credit" decoration-info="state == 'draft'" decoration-muted="state == 'cancel'"
+                  default_order="id desc">
+                <field name="company_id" invisible="0"/>
+                <field name="name" string="Reference"/>
+                <field name="user_id" widget="many2one_avatar_user" optional="show"/>
+                <field name="lc_number" optional="show"/>
+                <field name="expire_date" widget="remaining_days" optional="hide"/>
+                <field name="schedule_date" widget="remaining_days" optional="show"/>
+                <field name="partner_id"/>
+                <field name="related_partner_id"/>
+                <!--                <field name="requisition_id" optional="hide"/>-->
+                <field name="origin" optional="hide"/>
+                <!--                <field name="company_id"/>-->
+                <field name="warehouse_id" optional="hide"/>
+                <!--                <field name="company_id" groups="base.group_multi_company" readonly="1" optional="hide"/>-->
+                <field name="state" decoration-success="state == 'done'"
+                       decoration-danger="state == 'cancel'" decoration-info="state not in ('done', 'cancel')"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="lc_view_form" model="ir.ui.view">
+        <field name="name">letter.credit.form</field>
+        <field name="model">letter.credit</field>
+        <field name="arch" type="xml">
+            <form string="Letter Of Credit">
+                <header>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,confirm,lc_open,lc_document,done,"/>
+                    <button name="action_confirm" type="object" string="Confirm" class="oe_highlight"
+                            invisible="state!='draft'"
+                            groups="import_lc_management.group_lc_user"/>
+                    <!--                    <button name="action_new_po" type="object" string="New Quotation" class="oe_highlight"-->
+                    <!--                            state="confirm" groups="brac_lc_process.group_lc_user" invisible="state !='confirm'"/>-->
+                    <button name="action_done" type="object" string="L/C Done" class="oe_highlight" state="approve"
+                            invisible="state in ('done','cancel','draft','confirm','lc_open')"
+                            groups="import_lc_management.group_lc_manager"/>
+                    <button name="action_cancel" type="object" string="Cancel" class="btn btn-danger"
+                            confirm="This will cancel all related Purchase Order. Do you still want to proceed?"
+                            state="confirm,done" groups="import_lc_management.group_lc_manager"
+                            invisible="state in ('done','cancel')"/>
+                    <button string="Receive Products" name="action_view_picking" type="object" class="oe_highlight"
+                            groups="stock.group_stock_user"
+                            invisible="state != 'done' and 'picking_done_count' !=0"/>
+                    <button string="Add Landed Cost" name="action_new_landed_cost" type="object"
+                            class="oe_highlight" groups="stock.group_stock_user"
+                            invisible="state != 'done' or 'picking_done_count' == 0 or landed_cost_count != 0"/>
+
+                    <button name="action_create_lc_journal_entry" type="object" string="Custom Duty Journal Entry"
+                            class="oe_highlight"
+                            invisible="1"
+                            groups="import_lc_management.group_lc_manager"/>
+                    <button name="action_create_lc_margin_entry" type="object" string="LC Margin Entry"
+                            class="oe_highlight"
+                            invisible="state in ('draft', 'done','lc_open','lc_document','cancel')"
+                            groups="import_lc_management.group_lc_manager"/>
+                    <button name="action_create_lc_payment_entry"
+                            type="object"
+                            string="Create LC Payment Entry"
+                            class="btn-primary"
+                            invisible="1"
+                            groups="import_lc_management.group_lc_manager"/>
+
+                    <button name="action_draft"
+                            string="Set to Draft"
+                            type="object"
+                            class="btn-secondary"
+                            invisible="1"
+                            groups="import_lc_management.group_lc_manager"/>
+                    <button name="action_payment_lc_bank_charge"
+                            string="Bank Charge Payment"
+                            type="object"
+                            class="btn-primary"
+                            invisible="state in ('draft','cancel','confirm')"/>
+
+                    <!--                    <button name="action_create_loan"-->
+                    <!--                            string="Create Loan"-->
+                    <!--                            type="object"-->
+                    <!--                            class="btn-primary"-->
+                    <!--                            groups="import_lc_management.group_lc_manager"-->
+                    <!--                            invisible="loan_id != False or lc_vendor_voucher != False or state in ('draft','approve','done','lc_document')"/>-->
+
+                    <button name="action_create_vendor_payment"
+                            string="Custom Duty Payment"
+                            type="object"
+                            class="btn-primary"
+                            invisible="1"
+                            groups="import_lc_management.group_lc_manager"/>
+
+                    <button name="action_open_payment_wizard"
+                            type="object"
+                            string="Create Vendor Payment"
+                            class="btn-primary"
+                            icon="fa-plus"
+                            invisible="state in ('draft','cancel','confirm','lc_open','done')"/>
+                    <button name="action_create_vendor_bill"
+                            type="object"
+                            string="Create Additional Bill"
+                            class="btn-primary"
+                            invisible="1"
+                    />
+                    <button name="action_open_vendor_bill_wizard"
+                            string="Create Additional Bill"
+                            type="object"
+                            class="btn-primary"
+                            invisible="state in ('draft','confirm','done','lc_open','done')"/>
+                    <button name="open_custom_duty_wizard"
+                            type="object"
+                            string="Create Custom Duty payment"
+                            class="btn-primary"
+                            invisible="state in ('draft','confirm','done','cancel','lc_open')"/>
+                    <button name="action_payment_lc_insurance" string="LC Insurance Payment" type="object"
+                            class="btn-primary"
+                            invisible="state in ('draft','done','cancel')"/>
+                    <button name="action_create_shipment"
+                            string="Create Shipment"
+                            type="object"
+                            class="btn-primary"
+                    />
+
+                    <button name="get_lc_cost_line_values" string="Populated Cost Line" type="object" class="btn-info"
+                            invisible="1"/>
+                </header>
+                <sheet>
+
+                    <div class="oe_button_box" name="button_box">
+
+                        <button name="action_view_landed_cost" type="object" class="oe_stat_button" icon="fa-dollar"
+                                groups="stock.group_stock_user">
+                            <field name="landed_cost_count" widget="statinfo" string="Landed Cost" help="Landed Cost"/>
+                        </button>
+
+                        <button name="action_view_landed_cost" type="object" class="oe_stat_button" icon="fa-dollar"
+                                groups="stock.group_stock_user">
+                            <div class="o_field_widget o_stat_info mr4">
+                                <span class="o_stat_text">Posted:</span>
+                                <span class="o_stat_text">Actual:</span>
+                            </div>
+                            <div class="o_field_widget o_stat_info">
+                                <span class="o_stat_value">
+                                    <field name="landed_cost_posted_count"/>
+                                </span>
+                                <span class="o_stat_value">
+                                    <field name="landed_cost_actual_count"/>
+                                </span>
+                            </div>
+                        </button>
+
+                        <button name="action_view_shipments"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-truck"
+                                invisible="shipment_count == 0">
+                            <field name="shipment_count" widget="statinfo" string="Shipments"/>
+                        </button>
+
+
+                        <button name="action_view_picking" type="object" class="oe_stat_button" icon="fa-truck"
+                                groups="stock.group_stock_user">
+                            <div class="o_field_widget o_stat_info mr4">
+                                <span class="o_stat_text">Ready:</span>
+                                <span class="o_stat_text">Done :</span>
+                            </div>
+                            <div class="o_field_widget o_stat_info">
+                                <span class="o_stat_value">
+                                    <field name="picking_ready_count"/>
+                                </span>
+                                <span class="o_stat_value">
+                                    <field name="picking_done_count"/>
+                                </span>
+                            </div>
+                        </button>
+
+                        <button name="action_view_po" type="object" class="oe_stat_button" icon="fa-credit-card"
+                                groups="purchase.group_purchase_user">
+                            <div class="o_field_widget o_stat_info mr4">
+                                <span class="o_stat_text">Offer:</span>
+                                <span class="o_stat_text">Order:</span>
+                            </div>
+                            <div class="o_field_widget o_stat_info">
+                                <span class="o_stat_value">
+                                    <field name="offer_count"/>
+                                </span>
+                                <span class="o_stat_value">
+                                    <field name="po_count"/>
+                                </span>
+                            </div>
+                        </button>
+                        <!--                        <field name="loan_id" invisible="1"/>-->
+
+                        <div class="oe_button_box" name="button_box">
+                            <!--                            <button name="action_open_related_loan"-->
+                            <!--                                    type="object"-->
+                            <!--                                    class="oe_stat_button"-->
+                            <!--                                    icon="fa-money"-->
+                            <!--                                    invisible="loan_id == False">-->
+                            <!--                                <div class="o_stat_info">-->
+                            <!--                                    <span class="o_stat_text">Loan</span>-->
+                            <!--                                </div>-->
+                            <!--                            </button>-->
+                            <button name="action_view_vendor_payments"
+                                    type="object"
+                                    class="oe_stat_button"
+                                    icon="fa-money"
+                                    invisible="payment_count == 0">
+                                <field name="payment_count" widget="statinfo" string="Vendor Payment"/>
+                            </button>
+                            <button name="action_view_add_charge_vendor_bills"
+                                    type="object"
+                                    class="oe_stat_button"
+                                    icon="fa-pencil-square-o">
+                                <field name="add_charge_vendor_bill_count" widget="statinfo" string="Vendor Bills"/>
+                            </button>
+                            <button name="action_view_custom_duty_journals"
+                                    type="object"
+                                    class="oe_stat_button"
+                                    icon="fa-file-text-o"
+                                    invisible="custom_duty_journal_count == 0">
+                                <field name="custom_duty_journal_count" widget="statinfo" string="Custom Duty Entry"/>
+                            </button>
+                        </div>
+
+                    </div>
+                    <div class="oe_title mb-3">
+                        <h1>
+                            <field name="name"/>
+                        </h1>
+                    </div>
+
+                    <group>
+                        <group readonly="state!='draft'">
+                            <!--                            <field name="requisition_id" options="{'no_create': True}" readonly="1" force_save="1" widget="many2many_tags"/>-->
+                            <field name="po_id" optional="{'no_create': True}" readonly="1" force_save="1"/>
+                            <!--                            <field name="requisition_id" options="{'no_create': True}" readonly="1" force_save="1"-->
+                            widget="many2many_tags"/>
+                            <field name="lc_number" readonly="state in ('done')"/>
+                            <field name="advise_bank"/>
+                            <field name="company_id" readonly="state in ('done')"/>
+                            <field name="currency_id" readonly="1" force_save="1"/>
+                            <field name="purchase_process" widget="selection" readonly="1" force_save="1"/>
+                            <field name="issue_bank" readonly="state in ('done')"/>
+                            <field name="port_land" readonly="state in ('done')"/>
+                            <field name="port_destination" readonly="state in ('done')"/>
+                            <field name="proforma_invoice" readonly="state in ('done')"/>
+                            <field name="customer_invoice" readonly="state in ('done')"/>
+                        </group>
+                        <group readonly="state!='draft'">
+                            <field name="user_id" domain="[('share', '=', False)]" options="{'no_create': True}"
+                                   readonly="state!='draft'"/>
+                            <field name="partner_id" widget="res_partner_many2one" readonly="state!='draft'"/>
+                            <field name="related_partner_id" readonly="state!='draft'"/>
+                            <field name="opening_date" readonly="state in ('done')"/>
+                            <field name="last_shipment_date" readonly="state in ('done')"/>
+                            <field name="expire_date" readonly="state in ('done')"/>
+                            <field name="schedule_date" readonly="state in ('done')"/>
+                            <field name="origin" readonly="state in ('done')"/>
+                            <field name="warehouse_id" options="{'no_create': True}" readonly="state!='draft'"/>
+                            <field name="company_id" groups="base.group_multi_company"
+                                   options="{'no_create': True}" readonly="state!='draft'"/>
+                            <field name="currency_id" readonly="1" force_save="1" invisible="1"/>
+                            <field name="local_currency" readonly="1" force_save="1"/>
+                            <field name="voucher_number" force_save="1" readonly="1" invisible="1"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Product Lines" name="lc_lines_page">
+                            <field name="lc_lines"
+                                   readonly="state!='draft'">
+                                <list editable="bottom">
+                                    <field name="company_id" column_invisible="1"/>
+                                    <field name="product_uom_category_id" column_invisible="1"/>
+                                    <!--                                    <field name="requisition_line_id" column_invisible="1"/>-->
+                                    <field name="purchase_line_id" column_invisible="1"/>
+                                    <field name="product_id" options="{'no_create': True}"/>
+                                    <!--                                    <field name="requisition_id" readonly="1" force_save="1"/>-->
+                                    <field name="product_qty" string="Quantity"/>
+                                    <field name="remaining_qty" string="Remaining QTY"/>
+                                    <field name="shipped_qty" string="Shipment QTY"/>
+                                    <field name="price_unit" readonly="1" force_save="1"/>
+                                    <field name="foreign_currency" readonly="1" force_save="1"/>
+                                    <field name="foreign_price_subtotal" readonly="1" force_save="1"/>
+                                    <field name="product_uom" string="UoM" groups="uom.group_uom"/>
+                                    <field name="price_subtotal" readonly="1" force_save="1"/>
+                                </list>
+                            </field>
+                            <group>
+                                <group>
+                                    <field colspan="2" name="notes" nolabel="1"
+                                           placeholder="Define your terms and conditions ..."/>
+                                </group>
+                                <group class="oe_subtotal_footer oe_right">
+                                    <field name="amount_total" readonly="1"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="LC Margin">
+                            <group>
+                                <group>
+                                    <field name="lc_margin_currency_rate" string="Currency Rate for Margin"
+                                           readonly="state in ('lc_open','lc_document','done')"/>
+                                    <field name="lc_margin"
+                                           string="LC Margin (%)"
+                                           widget="percent"
+                                           readonly="state in ('lc_document','done')"
+                                           class="oe_inline"/>
+                                </group>
+                                <group>
+                                    <field name="lc_margin_amount"
+                                           readonly="1"
+                                           force_save="1"/>
+                                </group>
+                                <group>
+                                    <field name="lc_value"
+                                           readonly="0"
+                                           required="1"
+                                           force_save="1"/>
+                                </group>
+                                <group>
+                                    <field name="margin_value_bdt"
+                                           string="Margin Amount BDT"
+                                           readonly="1"
+                                           force_save="1"/>
+                                </group>
+                                <group>
+                                    <field name="lc_total_amount_bdt"
+                                           string="Total LC Amount BDT"
+                                           readonly="1"
+                                           force_save="1"/>
+                                </group>
+
+                                <group>
+                                    <field name="lc_value_bdt"
+                                           readonly="1"
+                                           force_save="1"/>
+                                </group>
+                                <group>
+                                    <field name="lc_margin_acc"
+                                           string="LC Margin Acc"
+                                           readonly="state in ('done','cancel','lc_document')"
+                                           force_save="1"/>
+                                </group>
+                                <group>
+                                    <field name="lc_margin_amount"
+                                           string="Margin Amount"
+                                           readonly="1"
+                                           force_save="1"/>
+                                </group>
+                                <group>
+                                    <field name="lc_margin_journal"
+                                           string="LC Margin Journal"
+                                           readonly="state in ('done','cancel')"
+                                           force_save="1"/>
+                                </group>
+                                <group>
+                                    <field name="lc_margin_voucher_number"
+                                           string="LC Margin Payment Journal"
+                                           readonly="1"
+                                           force_save="1"/>
+                                </group>
+
+                            </group>
+                        </page>
+
+                        <page string="LC Insurance">
+                            <group>
+                                <group>
+                                    <field name="insurance_no" readonly="state in('draft')"/>
+                                    <field name="insurance_amount" readonly="state in('draft')"/>
+                                    <field name="insurance_company" readonly="state in('draft')"/>
+                                    <field name="ins_cover_date" readonly="state in('draft')"/>
+                                </group>
+                                <group>
+                                    <field name="ins_cover_note" readonly="state in('draft')"/>
+                                    <field name="ins_acc_no" readonly="state in('draft')"/>
+                                    <field name="lc_ins_journal" readonly="state in('draft')"/>
+                                    <field name="insurance_payment_entry" readonly="1" force_save="1"/>
+                                </group>
+
+                            </group>
+
+                        </page>
+
+
+                        <page string="Landed Cost Lines" name="lc_cost_line_page" readonly="state in ('done')"
+                              invisible="1">
+                            <group>
+                                <field name="lc_journal_id" readonly="state=='done'" invisible="1"/>
+                                <field name="add_journal_id" readonly="state=='done'" invisible="1"/>
+                                <field name="add_partner_id" invisible="1"/>
+                                <field name="payment_id" readonly="1" force_save="1" invisible="1"/>
+                                <field name="add_charge_vendor_bill" readonly="1" force_save="1"
+                                       widget="many2many_tags"/>
+                                <field name="custom_duty_journals" readonly="1" force_save="1" widget="many2many_tags"/>
+                            </group>
+                            <field name="lc_cost_line_ids">
+                                <list editable="bottom" create="True">
+                                    <field name="lc_product_id" options="{'no_create': True}"/>
+                                    <field name="product_id" options="{'no_create': True}"/>
+                                    <field name="landed_cost_type"/>
+                                    <field name="split_method"/>
+                                    <field name="currency_id"/>
+                                    <field name="account_id"/>
+                                    <field name="amount"/>
+                                    <field name="is_payed" readonly="1" force_save="1" optional="show" invisible="1"/>
+                                </list>
+                            </field>
+                            <div style="margin-left: 1200px; margin-top: 5px; font-weight: bold;">
+                                Total:
+                                <field name="total_landed_cost" readonly="1" widget="monetary"/>
+                            </div>
+                        </page>
+                        <page string="Internal Notes">
+                            <field name="internal_notes" placeholder="Add Internal Notes"/>
+                        </page>
+                        <page string="Description">
+                            <field name="description" placeholder="Add Description" readonly="state=='done'"/>
+                        </page>
+                        <!--                        <page string="LC Margin">-->
+                        <!--                            <group>-->
+                        <!--                                <group>-->
+                        <!--                                    <field name="lc_margin_currency_rate" string="Currency Rate for Margin" -->
+                        <!--                                           readonly="state in ['lc_open','lc_document','done']"/>-->
+                        <!--                                    <field name="lc_margin"-->
+                        <!--                                           string="LC Margin (%)"-->
+                        <!--                                           widget="percent"-->
+                        <!--                                           readonly="state in ('lc_document','done')"-->
+                        <!--                                           class="oe_inline"/>-->
+                        <!--                                </group>-->
+                        <!--                                <group>-->
+                        <!--                                    <field name="lc_margin_value"-->
+                        <!--                                           string="Margin Amount"-->
+                        <!--                                           readonly="1"-->
+                        <!--                                           force_save="1"/>-->
+                        <!--                                </group>-->
+                        <!--                                <group>-->
+                        <!--                                    <field name="margin_value_bdt"-->
+                        <!--                                           string="Margin Amount BDT"-->
+                        <!--                                           readonly="1"-->
+                        <!--                                           force_save="1"/>-->
+                        <!--                                </group>-->
+                        <!--                                <group>-->
+                        <!--                                    <field name="lc_total_amount_bdt"-->
+                        <!--                                           string="Total LC Amount BDT"-->
+                        <!--                                           readonly="1"-->
+                        <!--                                           force_save="1"/>-->
+                        <!--                                </group>-->
+                        <!--                                <group>-->
+                        <!--                                    <field name="lc_margin_acc"-->
+                        <!--                                           string="LC Margin Acc"-->
+                        <!--                                           readonly="state in ('done','cancel','lc_document')"-->
+                        <!--                                           force_save="1"/>-->
+                        <!--                                </group>-->
+                        <!--                                <group>-->
+                        <!--                                    <field name="lc_margin_journal"-->
+                        <!--                                           string="LC Margin Journal"-->
+                        <!--                                           readonly="state in ('done','cancel')"-->
+                        <!--                                           force_save="1"/>-->
+                        <!--                                </group>-->
+                        <!--                                <group>-->
+                        <!--                                    <field name="lc_margin_voucher_number"-->
+                        <!--                                           string="LC Margin Payment"-->
+                        <!--                                           readonly="1"-->
+                        <!--                                           force_save="1"/>-->
+                        <!--                                </group>-->
+
+                        <!--                            </group>-->
+                        <!--                        </page>-->
+                        <page string="LC Payment Entry" invisible="1">
+
+                            <group>
+                                <field name="lc_vendor_payment_journal"
+                                       string="LC Vendor Journal"
+                                       readonly="state in ('done','cancel')"
+                                       force_save="1"/>
+                            </group>
+                            <group>
+                                <field name="lc_vendor_voucher"
+                                       string="LC Vendor Payment"
+                                       readonly="1"
+                                       force_save="1"/>
+                            </group>
+
+                        </page>
+                        <page string="Bank Payment Entry" invisible="0">
+
+                            <group>
+                                <field name="bank_charge_amount"
+                                       readonly="state in ('done','cancel')"
+                                       force_save="1"/>
+                            </group>
+                            <group>
+                                <field name="bank_acc_no"
+                                       readonly="0"
+                                       force_save="1"/>
+                            </group>
+                            <group>
+                                <field name="bank_charge_journal"
+                                       readonly="state in ('cancel','done')"
+                                       force_save="1"/>
+                            </group>
+                            <group>
+                                <field name="bank_charge_payment_entry"
+                                       readonly="1"
+                                       force_save="1"/>
+                            </group>
+
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter reload_on_follower="True"/>
+            </form>
+        </field>
+    </record>
+
+
+<!--    <record id="lc_order_view_form_filter" model="ir.ui.view">-->
+<!--        <field name="name">letter.credit.search</field>-->
+<!--        <field name="model">letter.credit</field>-->
+<!--        <field name="arch" type="xml">-->
+<!--            <search string="Search L/C">-->
+<!--                &lt;!&ndash; Basic search fields &ndash;&gt;-->
+<!--                <field name="name" string="L/C Reference"/>-->
+<!--                <field name="lc_number"/>-->
+<!--                <field name="partner_id"/>-->
+
+<!--                &lt;!&ndash; Basic filters &ndash;&gt;-->
+<!--                <filter string="Draft" name="draft" domain="[('state', '=', 'draft')]"/>-->
+<!--                <filter string="Confirmed" name="confirmed" domain="[('state', '=', 'confirm')]"/>-->
+<!--                <filter string="Done" name="done" domain="[('state', '=', 'done')]"/>-->
+
+<!--                &lt;!&ndash; Group By &ndash;&gt;-->
+<!--                <group expand="0" string="Group By">-->
+<!--                    <filter name="group_by_state" string="Status" context="{'group_by': 'state'}"/>-->
+<!--                    <filter name="group_by_company" string="Company" context="{'group_by': 'company_id'}"/>-->
+<!--                </group>-->
+<!--            </search>-->
+<!--        </field>-->
+<!--    </record>-->
+
+    <record id="lc_view_graph" model="ir.ui.view">
+        <field name="name">letter.credit.graph</field>
+        <field name="model">letter.credit</field>
+        <field name="arch" type="xml">
+            <graph string="Letter Of Credit">
+                <field name="create_date" interval="day" type="measure"/>
+                <field name="user_id" type="row"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="lc_view_pivot" model="ir.ui.view">
+        <field name="name">letter.credit.pivot</field>
+        <field name="model">letter.credit</field>
+        <field name="arch" type="xml">
+            <pivot string="Letter Of Credit">
+                <field name="create_date" interval="day" type="row"/>
+                <field name="user_id" type="col"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="lc_action_window" model="ir.actions.act_window">
+        <field name="name">Letter Of Credit</field>
+        <field name="res_model">letter.credit</field>
+        <field name="type">ir.actions.act_window</field>
+<!--        <field name="search_view_id" ref="lc_order_view_form_filter"/>-->
+        <field name="view_mode">list,graph,pivot,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No Letter Of Credit found. Let's create one!
+            </p>
+        </field>
+    </record>
+
+
+    <menuitem
+            id="lc_menu"
+            name="Letter of Credit"
+            parent="import_lc_management.menu_root"
+            action="lc_action_window"
+            sequence="10"
+            groups="import_lc_management.group_lc_ass_manager,import_lc_management.group_lc_senior_manager,group_lc_head_scm,group_lc_head_dept,import_lc_management.group_pasha_lc_manager"/>
+
+
+</odoo>

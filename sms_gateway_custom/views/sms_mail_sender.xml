@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <!--Search View-->
+    <record id="sms_mail_sender_view_search" model="ir.ui.view">
+        <field name="name">sms.mail.sender.search</field>
+        <field name="model">sms.mail.sender</field>
+        <field name="arch" type="xml">
+            <search string="Search Cheque Book Bank">
+                <field name="name"/>
+                <filter string="Active Format" name="active" domain="[('active','=',True)]"/>
+                <filter string="Inactive Format" name="active" domain="[('active','=',False)]"/>
+            </search>
+        </field>
+    </record>
+
+    <!--List View-->
+    <record id="sms_mail_sender_view_list" model="ir.ui.view">
+        <field name="name">sms.mail.sender.list</field>
+        <field name="model">sms.mail.sender</field>
+        <field name="arch" type="xml">
+            <list delete="false" string="SMS Template List">
+                <field name="name"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <!--Form View-->
+    <record id="sms_mail_sender_view_form" model="ir.ui.view">
+        <field name="name">sms.mail.sender.form</field>
+        <field name="model">sms.mail.sender</field>
+        <field name="arch" type="xml">
+            <form delete="false" string="SMS Template Form">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name" required="1"/>
+                            <field name="active" required="1"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!--Main Action-->
+    <record id="sms_mail_sender_action" model="ir.actions.act_window">
+        <field name="name">SMS-Mail Sender</field>
+        <field name="res_model">sms.mail.sender</field>
+        <field name="context">{}</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Please Create SMS Mail Sender
+            </p>
+        </field>
+    </record>
+</odoo>

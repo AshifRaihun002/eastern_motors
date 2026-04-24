@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Form View -->
+        <record id="res_purchase_requisition_form_view" model="ir.ui.view">
+            <field name="name">purchase.requisition.form</field>
+            <field name="model">custom.purchase.requisition</field>
+            <field name="inherit_id" ref="custom_purchase_requisition.view_purchase_requisition_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='name']" position="after">
+                    <field name="indent_ids" widget="many2many_tags" invisible="1"/>
+                </xpath>
+                <xpath expr="//field[@name='line_ids']/list/field[@name='purchase_order_line_ids']" position="after">
+                    <field name="indent_ids" column_invisible="1" widget="many2many_tags"/>
+                    <field name="indent_line_id" column_invisible="1"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,81 @@
+<odoo>
+    <!-- Inherit the Purchase Order form view -->
+    <record id="view_purchase_order_form_inherit" model="ir.ui.view">
+        <field name="name">purchase.order.form.inherit.brac</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='date_order']" position="before">
+                <field name="purchase_process" widget="selection" required="True"
+                       readonly="state in('purchase','cancel','done')"
+                       force_save="1"/>
+                <field string="Conversion Rate" name="local_currency" invisible="purchase_process == 'local_purchase'"
+                       readonly="state in ('done', 'cancel') or purchase_process == 'local_purchase'"
+                       force_save="1"/>
+            </xpath>
+
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <!--                <field name="custom_requisition_id" readonly="True" force_save="1"/>-->
+                <field name="lc_id" readonly="True" force_save="1"/>
+            </xpath>
+            <xpath expr="//div[@name='button_box']/button[@name='action_view_picking']" position="after">
+                <button string="LC"
+                        class="oe_stat_button"
+                        type="object"
+                        name="action_view_lcs"
+                        icon="fa-credit-card"
+                        invisible="lc_count == 0">
+                    <field string="LC Count" name="lc_count" widget="statinfo"/>
+                </button>
+            </xpath>
+
+            <xpath expr="//header/button[@name='button_confirm']" position="after">
+                <!-- Approve button -->
+                <button name="action_create_lc" type="object" string="LC Create" class="oe_highlight"
+                        invisible="state not in ('draft','cancel','sent') and purchase_process != 'foreign_purchase'  or  lc_id.state != 'cancel'"/>
+            </xpath>
+
+            <xpath expr="//field[@name='order_line']/list//field[@name='price_unit']" position="after">
+                <!--                <field name="local_currency_id" readonly="1" force_save="1" column_invisible="parent.purchase_process == 'local_purchase'"/>-->
+                <field name="foreign_currency" readonly="1" force_save="1"
+                       column_invisible="parent.purchase_process == 'local_purchase'" optional="show"/>
+                <!--                <field name="foreign_currency_id" readonly="1" force_save="1" column_invisible="parent.purchase_process == 'local_purchase'"/>-->
+                <field name="foreign_price_subtotal" readonly="1" force_save="1"
+                       column_invisible="parent.purchase_process == 'local_purchase'" optional="show"/>
+            </xpath>
+
+        </field>
+
+    </record>
+
+    <record id="view_account_payment_form_inherit" model="ir.ui.view">
+        <field name="name">account.payment.form.inherit</field>
+        <field name="model">account.payment</field>
+        <field name="inherit_id" ref="account.view_account_payment_form"/>
+        <field name="arch" type="xml">
+            <!-- Add the custom_currency_rate field in the payment details section -->
+            <xpath expr="//group[@name='group1']" position="inside">
+                <field name="custom_currency_rate" readonly="1" force_save="1" invisible="payment_type != 'outbound'"/>
+            </xpath>
+        </field>
+    </record>
+
+
+    <record id="view_account_payment_register_inherit_form" model="ir.ui.view">
+        <field name="name">account.payment.register.form.inherit</field>
+        <field name="model">account.payment.register</field>
+        <field name="inherit_id" ref="account.view_account_payment_register_form"/>
+        <field name="arch" type="xml">
+            <!-- Insert custom_conversion_rate after the amount field -->
+            <xpath expr="//field[@name='amount']" position="after">
+                <field name="custom_conversion_rate" widget="float" options="{'precision': 6}" readonly="1"
+                       force_save="1" invisible="payment_type != 'outbound'"/>
+            </xpath>
+            <xpath expr="//group[@name='group2']//field[@name='currency_id']" position="attributes">
+                <attribute name="readonly">payment_type == 'outbound'</attribute>
+                <attribute name="force_save">1</attribute>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

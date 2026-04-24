@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <!--List View-->
+    <record id="sms_mail_server_list_view" model="ir.ui.view">
+        <field name="name">sms.mail.server.list</field>
+        <field name="model">sms.mail.server</field>
+        <field name="arch" type="xml">
+            <list string="SMS Mail Server">
+                <field name="sequence"/>
+                <field name="description"/>
+                <field name="gateway"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <!--Form View-->
+    <record id="sms_mail_server_form_view" model="ir.ui.view">
+        <field name="name">sms.mail.server.form</field>
+        <field name="model">sms.mail.server</field>
+        <field name="arch" type="xml">
+            <form string="SMS Mail Server">
+                <sheet>
+                    <group string="SMS Configuration" col="4">
+                        <field name="description"/>
+                        <field name="sequence"/>
+                        <field name="active"/>
+                    </group>
+                    <group string="Connection Information" col="4">
+                        <field name="sms_debug"/>
+                        <field name="gateway"/>
+                        <field name="user_mobile_no" required="True" placeholder="e.g. +8801844219621"/>
+                    </group>
+                    <group string="Security And Authentication">
+                        <field name="ssl_url"/>
+                        <field name="ssl_user_name"/>
+                        <field name="ssl_password"/>
+
+                        <field name="msg_type" invisible="gateway not in ('routemobile')"
+                               required="gateway == 'routemobile'"/>
+                        <field name="dlr" invisible="gateway not in ('routemobile')"
+                               required="gateway == 'routemobile'"/>
+                        <field name="msg_source" invisible="gateway not in ('routemobile')"
+                               required="gateway == 'routemobile'"/>
+
+                        <field name="api_token" invisible="gateway not in ('ssl_wireless')"
+                               required="gateway == 'ssl_wireless'"/>
+                        <field name="ssl_sid_new"/>
+                        <!-- <field name="test_response_msg" /> -->
+                        <button name="test_conn_ssl" string="Test Connection" type="object"/>
+                        <field name="test_response_msg" readonly="1" style="font-weight:bold;"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!--Main Action-->
+    <record id="sms_mail_server_form_action" model="ir.actions.act_window">
+        <field name="name">SMS Mail Server</field>
+        <field name="res_model">sms.mail.server</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

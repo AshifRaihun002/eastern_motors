@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="view_lc_shipment_vendor_bill_wizard_form" model="ir.ui.view">
+            <field name="name">lc.shipment.vendor.bill.wizard.form</field>
+            <field name="model">lc.shipment.vendor.bill.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Create Vendor Bill">
+                    <group>
+                        <group>
+                            <field name="shipment_id" readonly="1"/>
+                            <field name="vendor_id"/>
+                            <field name="currency_id"/>
+                        </group>
+                        <group>
+                            <!-- Additional fields if needed -->
+                        </group>
+                    </group>
+                    <field name="bill_line_ids">
+                        <list editable="bottom">
+                            <field name="product_id"/>
+                            <field name="description"/>
+                            <field name="amount"/>
+                            <field name="account_id"/>
+                        </list>
+                    </field>
+                    <footer>
+                        <button name="action_create_vendor_bill" string="Create Bill" type="object"
+                                class="btn-primary"/>
+                        <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <act_window id="action_lc_shipment_vendor_bill_wizard"
+                    name="Create Vendor Bill"
+                    res_model="lc.shipment.vendor.bill.wizard"
+                    view_mode="form"
+                    target="new"
+                    context="{'default_shipment_id': active_id}"/>
+    </data>
+</odoo>

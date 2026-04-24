@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <!--Search View-->
+    <record id="sms_outbox_details_search" model="ir.ui.view">
+        <field name="name">sms.outbox.details.search</field>
+        <field name="model">sms.outbox.details</field>
+        <field name="arch" type="xml">
+            <search string="SMS Outbox Search">
+                <field name="module_name"/>
+                <field name="source_ref"/>
+                <field name="mobile_no"/>
+                <field name="msg_id"/>
+                <field name="error_msg"/>
+
+                <filter string="Ready" name="filter_ready"
+                        domain="[('status','=','1')]" help="Filter by Ready Status"/>
+                <filter string="Sent" name="filter_sent"
+                        domain="[('status','=','2')]" help="Filter by Ready Status"/>
+                <filter string="Error" name="filter_error"
+                        domain="[('status','=','3')]" help="Filter by Ready Status"/>
+
+            </search>
+        </field>
+    </record>
+
+    <!--List View-->
+    <record id="sms_outbox_details_list" model="ir.ui.view">
+        <field name="name">sms.outbox.details.list</field>
+        <field name="model">sms.outbox.details</field>
+        <field name="arch" type="xml">
+            <list string="SMS Outbox List List">
+                <field name="module_name"/>
+                <field name="source_ref"/>
+                <field name="mobile_no"/>
+                <field name="msg_body"/>
+                <field name="msg_id"/>
+                <field name="status"/>
+                <field name="error_msg"/>
+                <field name="create_date"/>
+                <field name="write_date"/>
+            </list>
+        </field>
+    </record>
+
+    <!--Form View-->
+    <record id="sms_outbox_details_form" model="ir.ui.view">
+        <field name="name">sms.outbox.details.form</field>
+        <field name="model">sms.outbox.details</field>
+        <field name="arch" type="xml">
+            <form string="SMS Outbox Form">
+                <sheet>
+                    <group>
+                        <field name="module_name"/>
+                        <field name="source_ref"/>
+                        <field name="mobile_no"/>
+                        <field name="is_header_sent"/>
+                        <field name="header_text"/>
+                        <field name="msg_body"/>
+                        <field name="is_footer_sent"/>
+                        <field name="footer_text"/>
+                        <field name="msg_id"/>
+                        <field name="error_msg"/>
+                        <field name="status"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!--Main Action-->
+    <record id="sms_outbox_details_action" model="ir.actions.act_window">
+        <field name="name">SMS Outbox</field>
+        <field name="res_model">sms.outbox.details</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_id" ref="sms_outbox_details_form"/>
+        <field name="context">{'search_default_filter_ready':1}</field>
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">Welcome To SMS Outbox</p>
+        </field>
+    </record>
+
+    <record id="sms_outbox_details_action_list" model="ir.actions.act_window.view">
+        <field name="sequence" eval="1"/>
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="sms_outbox_details_list"/>
+        <field name="act_window_id" ref="sms_outbox_details_action"/>
+    </record>
+</odoo>

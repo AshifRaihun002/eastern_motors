@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="inherit_res_partner_views" model="ir.ui.view">
+        <field name="name">inherit.res.partner.views</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page name="custom_sales" string="Sales Info">
+                    <group>
+                        <field name="customer_type"/>
+                        <field name="is_security_money_apply"/>
+                        <field name="security_money"
+                               invisible="not is_security_money_apply"
+                               required="is_security_money_apply"/>
+                        <field name="remaining_credit_limit" invisible="not use_partner_credit_limit"/>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
